@@ -343,6 +343,70 @@
     .config-meta-row:last-child{border-bottom:none}
     .config-meta-key{color:var(--g5);font-weight:600;min-width:100px}
     .config-meta-val{color:var(--g7)}
+
+    /* ── Overview Page ── */
+    .ov-scroll{flex:1;overflow-y:auto;background:var(--bg)}
+    .ov-scroll::-webkit-scrollbar{width:6px}
+    .ov-scroll::-webkit-scrollbar-thumb{background:var(--g2);border-radius:4px}
+    .ov-content{max-width:860px;margin:0 auto;padding:32px 32px 56px}
+    .ov-hero{margin-bottom:28px}
+    .ov-h1{font-size:26px;font-weight:900;color:var(--teal);letter-spacing:-.5px;margin-bottom:8px}
+    .ov-h2{font-size:18px;font-weight:800;color:var(--teal);margin-bottom:6px}
+    .ov-h3{font-size:13px;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+    .ov-lead{font-size:13px;color:var(--g5);line-height:1.7;max-width:640px}
+    .ov-text{font-size:13px;color:var(--g5);line-height:1.7}
+    .ov-text.semibold{font-weight:600;color:var(--g8)}
+    .ov-divider{border:none;border-top:1px solid var(--g2);margin:28px 0}
+    .ov-row{display:flex;gap:16px;align-items:center}
+    .ov-pill{display:inline-flex;align-items:center;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:.3px;text-transform:uppercase}
+    .ov-pill.info{background:rgba(21,101,192,.12);color:#1565c0}
+    .ov-pill.neutral{background:var(--g1);color:var(--g5);border:1px solid var(--g2)}
+    /* KPI stats */
+    .ov-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:4px}
+    .ov-stat{background:var(--white);border-radius:var(--r);padding:18px 16px;box-shadow:var(--shadow);border:1px solid var(--g2);text-align:center}
+    .ov-stat-val{font-size:28px;font-weight:900;line-height:1;margin-bottom:4px}
+    .ov-stat-val.info{color:#1565c0}
+    .ov-stat-val.success{color:var(--green)}
+    .ov-stat-val.neutral{color:var(--teal)}
+    .ov-stat-lbl{font-size:11px;color:var(--g5);font-weight:600}
+    /* Section container */
+    .ov-section{margin-bottom:28px}
+    /* Grid layouts */
+    .ov-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .ov-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .ov-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    /* Callout blocks */
+    .ov-callout{border-radius:10px;padding:14px 16px;border:1px solid transparent}
+    .ov-callout-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+    .ov-callout .ov-text{font-size:12px}
+    .ov-callout.info{background:rgba(21,101,192,.06);border-color:rgba(21,101,192,.18)}
+    .ov-callout.info .ov-callout-title{color:#1565c0}
+    .ov-callout.success{background:rgba(46,125,50,.06);border-color:rgba(46,125,50,.18)}
+    .ov-callout.success .ov-callout-title{color:var(--green)}
+    .ov-callout.warning{background:rgba(180,83,9,.06);border-color:rgba(180,83,9,.18)}
+    .ov-callout.warning .ov-callout-title{color:var(--amber)}
+    .ov-callout.neutral{background:var(--g1);border-color:var(--g2)}
+    .ov-callout.neutral .ov-callout-title{color:var(--g5)}
+    .ov-callout.flow{background:linear-gradient(135deg,rgba(15,61,76,.05),rgba(45,122,94,.06));border-color:rgba(15,61,76,.15)}
+    .ov-callout.flow .ov-callout-title{color:var(--teal)}
+    /* Card blocks */
+    .ov-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--g2);margin-bottom:14px;overflow:hidden}
+    .ov-card-header{padding:14px 20px;background:var(--g1);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .ov-card-title{font-size:13px;font-weight:800;color:var(--teal)}
+    .ov-card-body{padding:20px}
+    /* Table */
+    .ov-table-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--g2)}
+    .ov-table{width:100%;border-collapse:collapse;font-size:12px}
+    .ov-table th{background:var(--teal);color:#fff;padding:9px 14px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.3px}
+    .ov-table td{padding:8px 14px;border-bottom:1px solid var(--g2);vertical-align:top;color:var(--g8);line-height:1.5}
+    .ov-table tr:last-child td{border-bottom:none}
+    .ov-table tr:nth-child(odd) td{background:var(--g1)}
+    .ov-table tr:nth-child(even) td{background:var(--white)}
+    .ov-table tr.row-success td{background:rgba(46,125,50,.06)}
+    .ov-table tr.row-info td{background:rgba(21,101,192,.05)}
+    /* Footer */
+    .ov-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;font-size:11px;color:var(--g3)}
+    @media(max-width:700px){.ov-kpi-grid{grid-template-columns:1fr 1fr}.ov-grid2,.ov-grid3,.ov-grid4{grid-template-columns:1fr}.ov-content{padding:20px 16px 40px}}
   </style>
 </head>
 <body>
@@ -359,6 +423,9 @@
     </button>
     <button class="nav-item" id="navUsers" onclick="showPage('users')" title="User Management">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Users
+    </button>
+    <button class="nav-item" id="navOverview" onclick="showPage('overview')" title="Product Overview">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>About
     </button>
     <div class="sb-spacer"></div>
     <button class="nav-item" id="navConfig" onclick="showPage('config')" title="Configuration">
@@ -565,6 +632,401 @@
         </div>
       </div>
     </div>
+
+    <!-- ═══ OVERVIEW PAGE ═══ -->
+    <div class="pg" id="pgOverview">
+      <div class="ov-scroll">
+        <div class="ov-content">
+
+          <!-- ── HERO ── -->
+          <div class="ov-hero">
+            <div class="ov-row" style="margin-bottom:10px;flex-wrap:wrap;gap:8px">
+              <h1 class="ov-h1">Expat Concierge</h1>
+              <span class="ov-pill info">V2.4</span>
+              <span class="ov-pill neutral">Executive Overview</span>
+            </div>
+            <p class="ov-lead">An AI-powered concierge that guides employees through every step of their global mobility assignment. Policy-scoped, profile-aware, and always available — from offer acceptance to repatriation.</p>
+          </div>
+
+          <!-- ── KPI STRIP ── -->
+          <div class="ov-kpi-grid">
+            <div class="ov-stat"><div class="ov-stat-val info">10</div><div class="ov-stat-lbl">Agents &amp; services</div></div>
+            <div class="ov-stat"><div class="ov-stat-val neutral">4</div><div class="ov-stat-lbl">Assignment types covered</div></div>
+            <div class="ov-stat"><div class="ov-stat-val success">34</div><div class="ov-stat-lbl">Action items per expat</div></div>
+            <div class="ov-stat"><div class="ov-stat-val neutral">24/7</div><div class="ov-stat-lbl">AI availability</div></div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── ARCHITECTURE ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2">Multi-Agent Architecture</h2>
+            <p class="ov-text" style="margin-bottom:14px">Every user question passes through a layered pipeline of specialised agents and services before reaching GPT-4o. No answer is generated without policy validation, access control, confidence scoring, and decision framing.</p>
+
+            <div class="ov-callout flow" style="margin-bottom:16px">
+              <div class="ov-callout-title">Request flow</div>
+              <p class="ov-text">Access Control check → Policy Agent Router → Specialist Agent → Decision Engine → Confidence Engine → Chat Agent (context build) → GPT-4o → streamed response</p>
+            </div>
+
+            <h3 class="ov-h3" style="margin-top:18px">Orchestration</h3>
+            <div class="ov-grid2" style="margin-bottom:16px">
+              <div class="ov-callout info">
+                <div class="ov-callout-title">Policy Agent Router</div>
+                <p class="ov-text">Single entry point for every question. Reads the user's assignment type and routes to the correct specialist. Enforces type safety — a mismatched agent is caught and the Generic fallback is activated automatically.</p>
+              </div>
+              <div class="ov-callout info">
+                <div class="ov-callout-title">Chat Agent</div>
+                <p class="ov-text">Validates specialist output before trusting it, then assembles the full LLM context block — injecting guidance, decision type, confidence score, risk level, missing information, and escalation targets into the GPT-4o prompt.</p>
+              </div>
+            </div>
+
+            <h3 class="ov-h3">Specialist Agents</h3>
+            <div class="ov-grid2" style="margin-bottom:16px">
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">LTA Specialist</div>
+                <p class="ov-text">Long-Term Assignment advisor. Handles the most complex assignment type with escalation logic for tax, visa, payroll, and exceptions. Raises profile-specific flags for pending visa, school search for children, and pet relocation.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">STA Specialist</div>
+                <p class="ov-text">Short-Term Assignment advisor. Aware that STA extensions require explicit approval — flags these automatically. Covers temporary living, per diems, settling-in services, and split payroll scenarios.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">IA Specialist</div>
+                <p class="ov-text">International Appointment advisor. Handles the most legally sensitive assignment type — local entity implications, employment contract scope, compensation package governance, and right-to-work risks.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">Commuter Specialist</div>
+                <p class="ov-text">Commuter assignment advisor. The only agent that handles cross-border social security, dual-jurisdiction tax, and border crossing authorizations. Flags travel frequency and accommodation patterns.</p>
+              </div>
+              <div class="ov-callout warning" style="grid-column:1/-1">
+                <div class="ov-callout-title">Generic Fallback</div>
+                <p class="ov-text">Last resort when no specialist can safely handle the request. Always escalates to the GM Team, flags reduced confidence, and provides general market practice guidance only — never makes policy-specific claims without evidence.</p>
+              </div>
+            </div>
+
+            <h3 class="ov-h3">Support Services</h3>
+            <div class="ov-grid3" style="margin-bottom:16px">
+              <div class="ov-callout neutral">
+                <div class="ov-callout-title">Decision Engine</div>
+                <p class="ov-text">Classifies every response into one of five states: Clear, Conditional, Insufficient, Needs Review, or Out of Scope. Drives how the Chat Agent frames the final answer.</p>
+              </div>
+              <div class="ov-callout neutral">
+                <div class="ov-callout-title">Confidence Engine</div>
+                <p class="ov-text">Scores confidence (high / medium / low) and risk level based on evidence volume, specialist quality, and profile flags. Starts at 100% and deducts per signal — both scores injected into the LLM prompt.</p>
+              </div>
+              <div class="ov-callout neutral">
+                <div class="ov-callout-title">Policy Access Control</div>
+                <p class="ov-text">Hard boundary enforcement. Blocks any request that references a policy the user is not authorized for. An LTA expat can never access STA, IA, or Commuter policy content — regardless of how the question is phrased.</p>
+              </div>
+            </div>
+
+            <h3 class="ov-h3">Automatic Escalation</h3>
+            <p class="ov-text" style="margin-bottom:10px">When a question touches a sensitive topic — tax, immigration, exceptions, or social security — the system automatically flags it for the right specialist team. This happens before the AI answers, so the expat always receives both the AI guidance and a clear recommendation to confirm with the appropriate team.</p>
+            <div class="ov-callout warning">
+              <div class="ov-callout-title">Intent</div>
+              <p class="ov-text">The goal is not to block the conversation — it is to protect the expat. The AI still provides useful, policy-grounded guidance while making clear that certain decisions require human confirmation. No sensitive topic is answered in isolation.</p>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── THE CHALLENGE ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:14px">The Challenge</h2>
+            <div class="ov-grid2" style="margin-bottom:14px">
+              <div>
+                <p class="ov-text semibold" style="margin-bottom:6px">For expats</p>
+                <p class="ov-text">Global assignments are complex. Expats face dozens of simultaneous processes — visa applications, housing searches, school enrollment, tax registration — with little centralised guidance and no single source of truth. Stress and errors are common.</p>
+              </div>
+              <div>
+                <p class="ov-text semibold" style="margin-bottom:6px">For PBP and GM teams</p>
+                <p class="ov-text">Every assignment generates hundreds of repetitive questions across email, Teams, and calls. Deadlines are missed when task ownership is unclear. Policy guidance is inconsistent, creating compliance risk and eroding expat trust.</p>
+              </div>
+            </div>
+            <div class="ov-callout info">
+              <div class="ov-callout-title">The opportunity</div>
+              <p class="ov-text">A policy-aware AI concierge eliminates repetitive Q&amp;A, enforces assignment boundaries, tracks every action item with clear ownership, and gives expats the guided experience they need to succeed — without adding headcount.</p>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── CORE CAPABILITIES ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:14px">Core Capabilities</h2>
+            <div class="ov-grid2">
+              <div class="ov-callout info">
+                <div class="ov-callout-title">AI-Powered Chat</div>
+                <p class="ov-text">Instant answers to any relocation question, grounded in company policy and scoped to the expat's assignment type. Responses are personalised to the expat's profile — family situation, visa status, housing needs, tax concerns.</p>
+              </div>
+              <div class="ov-callout success">
+                <div class="ov-callout-title">Action Log &amp; Task Tracking</div>
+                <p class="ov-text">34 pre-loaded tasks per assignment with deadlines, owners (Expat, GM Team, Vialto, K2, Net Expat), and completion status. Nothing falls through the cracks. Overdue items are highlighted with alerts.</p>
+              </div>
+              <div class="ov-callout info">
+                <div class="ov-callout-title">Multi-Profile Management</div>
+                <p class="ov-text">Any number of expat profiles managed simultaneously. PBP admins can simulate any user, view their full action log, and switch context in one click. One platform for all active assignments.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">Proactive Alerts</div>
+                <p class="ov-text">Tasks due within 7 days surface automatically in the chat header. Overdue tasks are injected into the AI context so every answer is action-aware — not just policy-aware.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">Policy Enforcement</div>
+                <p class="ov-text">Assignment boundaries are strictly enforced. An LTA expat cannot receive STA benefit guidance. Every response is explainable and auditable, reducing legal and compliance exposure.</p>
+              </div>
+              <div class="ov-callout neutral">
+                <div class="ov-callout-title">Suggested Questions</div>
+                <p class="ov-text">Chat opens with personalised question chips based on the expat's exact profile — visa status, housing, schooling, tax equalization. Action log chips surface overdue and upcoming tasks as conversational prompts.</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── ASSIGNMENT JOURNEY ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:6px">The Assignment Journey</h2>
+            <p class="ov-text" style="margin-bottom:14px">Five stages from first login to PBP oversight — each step building on the last to guide the expat through the full assignment lifecycle.</p>
+            <div class="ov-grid2">
+              <div class="ov-callout info">
+                <div class="ov-callout-title">01 — Profile Loaded</div>
+                <p class="ov-text">The system reads the expat's assignment type, stage (pre / during / post), family situation, host and home countries, department, and expected move date. Every subsequent interaction is personalised to this context.</p>
+              </div>
+              <div class="ov-callout info">
+                <div class="ov-callout-title">02 — Personalised Welcome</div>
+                <p class="ov-text">The chat opens with suggested question chips tailored to the expat's exact situation — school search for children, visa status for immigration-in-progress assignments, housing for those needing temporary accommodation.</p>
+              </div>
+              <div class="ov-callout success">
+                <div class="ov-callout-title">03 — Instant AI Answers</div>
+                <p class="ov-text">GPT-4o responds with policy-scoped guidance specific to the assignment type. Answers reference the expat's profile and are bounded by policy. No out-of-scope guidance is given — ever.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">04 — Actions Tracked</div>
+                <p class="ov-text">Every task is visible with its owner, deadline, and completion status. Overdue items are flagged prominently and injected into the AI context so chat responses are action-aware. The 'due this week' bar surfaces urgency at a glance.</p>
+              </div>
+              <div class="ov-callout neutral" style="grid-column:1/-1">
+                <div class="ov-callout-title">05 — PBP Oversight</div>
+                <p class="ov-text">The GM and PBP team sees all expat profiles, action completion stats, and overdue counts from a single view. They can simulate any expat's experience in one click to understand exactly what guidance that person is receiving.</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── BUSINESS VALUE ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:14px">Business Value</h2>
+            <div class="ov-grid2">
+              <div class="ov-callout info">
+                <div class="ov-callout-title">Reduce PBP Workload</div>
+                <p class="ov-text">Routine relocation Q&amp;A is handled autonomously — no emails, no Teams messages, no calls. PBP time is redirected from answering FAQs to strategic mobility decisions.</p>
+              </div>
+              <div class="ov-callout success">
+                <div class="ov-callout-title">Improve Expat Experience</div>
+                <p class="ov-text">Expats get personalised, policy-accurate guidance from day one of offer acceptance through repatriation. Less anxiety, fewer errors, and a measurably higher assignment success rate.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">Ensure Compliance</div>
+                <p class="ov-text">Every response is bounded by the expat's assignment policy. No LTA expat can receive STA benefit guidance. Responses are explainable and auditable, reducing legal and compliance exposure.</p>
+              </div>
+              <div class="ov-callout neutral">
+                <div class="ov-callout-title">Full Visibility</div>
+                <p class="ov-text">Real-time action tracking with clear ownership and deadlines. Nothing falls through the cracks. PBP has dashboard-level oversight across all active assignments.</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── BUSINESS VALIDATION ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:6px">Current Phase: Business Validation</h2>
+            <p class="ov-text" style="margin-bottom:16px">We are in active validation with the business team. The goal is to test real expat scenarios, collect feedback, and use that input to enrich agents, expand the knowledge base, and improve the overall expat experience — before moving to full production rollout.</p>
+            <div class="ov-grid2" style="margin-bottom:16px">
+              <div class="ov-callout info">
+                <div class="ov-callout-title">What we are validating</div>
+                <p class="ov-text" style="margin-bottom:5px">Does the AI answer the questions expats actually ask — in the right language, with the right level of detail?</p>
+                <p class="ov-text" style="margin-bottom:5px">Are the policy boundaries correctly enforced per assignment type?</p>
+                <p class="ov-text" style="margin-bottom:5px">Do the action items, deadlines, and owners reflect real assignment workflows?</p>
+                <p class="ov-text">Where does the AI fall short — missing FAQs, weak answers, wrong escalations?</p>
+              </div>
+              <div class="ov-callout success">
+                <div class="ov-callout-title">How validation works</div>
+                <p class="ov-text" style="margin-bottom:5px">Business team receives the standalone HTML demo — no install, no setup, just an access code.</p>
+                <p class="ov-text" style="margin-bottom:5px">They simulate real expat profiles (LTA, STA, IA, Commuter) and test live AI chat responses.</p>
+                <p class="ov-text" style="margin-bottom:5px">Feedback is collected per scenario: answer quality, missing coverage, wrong scope, escalation accuracy.</p>
+                <p class="ov-text">Each feedback cycle directly informs the next iteration of agents, prompts, and FAQ coverage.</p>
+              </div>
+            </div>
+            <h3 class="ov-h3">Improvement Pipeline</h3>
+            <div class="ov-table-wrap" style="margin-bottom:16px">
+              <table class="ov-table">
+                <thead><tr><th>Area</th><th>Current state</th><th>Next iteration</th></tr></thead>
+                <tbody>
+                  <tr><td>Agent knowledge</td><td>General policy logic per assignment type</td><td>Enriched with company-specific policy documents and real case examples</td></tr>
+                  <tr><td>FAQ coverage</td><td>Profile-triggered suggested questions (6–8 per user)</td><td>Expanded library from business feedback — top 30+ real expat questions per type</td></tr>
+                  <tr><td>Chat quality</td><td>GPT-4o with policy context + profile awareness</td><td>Refined prompts, better handling of edge cases, improved escalation language</td></tr>
+                  <tr><td>Action log tasks</td><td>34 standard tasks mapped to assignment timeline</td><td>Validated against real GM workflows, adjusted deadlines and owner assignments</td></tr>
+                  <tr><td>Escalation accuracy</td><td>Pattern-based topic detection</td><td>Calibrated from real feedback on false positives and missed escalations</td></tr>
+                  <tr><td>Expat experience</td><td>Personalised welcome + suggested questions</td><td>Richer onboarding flow, proactive guidance at each assignment stage</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="ov-callout neutral">
+              <div class="ov-callout-title">The feedback loop</div>
+              <p class="ov-text">Business validation using the HTML demo → Collect gaps and quality issues → Enrich agents, prompts, and FAQs → Re-validate → Production rollout</p>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── NEXT STEPS ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:14px">Recommended Next Steps</h2>
+            <div class="ov-table-wrap">
+              <table class="ov-table">
+                <thead><tr><th style="width:36px;text-align:center">#</th><th>Step</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td style="text-align:center;font-weight:800">1</td><td>Live demo walkthrough</td><td>Schedule 30-minute demo with the GM and PBP leadership team</td></tr>
+                  <tr><td style="text-align:center;font-weight:800">2</td><td>Policy mapping</td><td>Identify and upload the relevant company mobility policy documents</td></tr>
+                  <tr><td style="text-align:center;font-weight:800">3</td><td>Profile definition</td><td>Define assignment types, benefit scopes, and expat profile fields</td></tr>
+                  <tr><td style="text-align:center;font-weight:800">4</td><td>Pilot launch</td><td>Go live with 2–3 active expat assignments for real-world validation</td></tr>
+                  <tr><td style="text-align:center;font-weight:800">5</td><td>Full rollout</td><td>Scale to all active assignments and enable the PBP admin dashboard</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── TIMELINE ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:6px">Proposed Timeline</h2>
+            <p class="ov-text" style="margin-bottom:18px">Four phases from current HTML validation through to production delivery via traditional software development — fully independent of AI-assisted tooling after approval.</p>
+
+            <div class="ov-card">
+              <div class="ov-card-header">
+                <span class="ov-card-title">Phase 1 — Business Validation (HTML Demo)</span>
+                <span class="ov-pill" style="background:rgba(46,125,50,.12);color:var(--green)">Now — Week 4</span>
+              </div>
+              <div class="ov-card-body">
+                <p class="ov-text" style="margin-bottom:14px">The business team tests the standalone HTML demo with real expat scenarios. No installation required — access via a shared file and access code. The focus is on validating that the AI answers the right questions, enforces the right policy boundaries, and reflects real assignment workflows.</p>
+                <div class="ov-table-wrap">
+                  <table class="ov-table">
+                    <thead><tr><th>Validation point</th><th>What we are checking</th></tr></thead>
+                    <tbody>
+                      <tr><td>Answer quality</td><td>Are AI responses accurate, clear, and appropriately scoped to the assignment type?</td></tr>
+                      <tr><td>Policy coverage</td><td>Does the system cover the questions expats actually ask day-to-day?</td></tr>
+                      <tr><td>Action log accuracy</td><td>Do the 34 tasks, deadlines, and owners reflect real GM workflows?</td></tr>
+                      <tr><td>Escalation behaviour</td><td>Does the system correctly flag sensitive topics (tax, visa, exceptions)?</td></tr>
+                      <tr><td>Profile personalisation</td><td>Does the experience feel tailored — or generic?</td></tr>
+                      <tr><td>Gap identification</td><td>Which topics are missing, under-answered, or incorrectly scoped?</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="ov-card">
+              <div class="ov-card-header">
+                <span class="ov-card-title">Phase 2 — Iteration &amp; Enrichment</span>
+                <span class="ov-pill info">Week 4 — Week 8</span>
+              </div>
+              <div class="ov-card-body">
+                <p class="ov-text" style="margin-bottom:14px">Based on validation feedback, the agents, prompts, and content are refined in the HTML demo environment. This phase closes the gaps identified in Phase 1 and produces a fully validated, business-approved specification for production development.</p>
+                <div class="ov-table-wrap" style="margin-bottom:14px">
+                  <table class="ov-table">
+                    <thead><tr><th>Area</th><th>Planned improvement</th></tr></thead>
+                    <tbody>
+                      <tr><td>Agent knowledge</td><td>Incorporate company-specific policy documents and real case examples into agent context</td></tr>
+                      <tr><td>FAQ library</td><td>Expand from profile-triggered questions to a validated set of 30+ FAQs per assignment type</td></tr>
+                      <tr><td>Chat prompts</td><td>Refine system prompts based on answer quality feedback — tone, depth, edge cases</td></tr>
+                      <tr><td>Action log</td><td>Adjust task list, deadlines, and owners based on real GM team workflow review</td></tr>
+                      <tr><td>Escalation logic</td><td>Calibrate triggers from feedback — reduce false positives, catch missed cases</td></tr>
+                      <tr><td>Multi-language</td><td>Assess need for localised responses based on expat population feedback</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="ov-callout neutral">
+                  <div class="ov-callout-title">Exit criteria</div>
+                  <p class="ov-text">Phase 2 is complete when the business team formally approves the demo as an accurate representation of the desired product. This approval is the gate for Phase 3.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="ov-card">
+              <div class="ov-card-header">
+                <span class="ov-card-title">Phase 3 — Traditional Development (Post-Approval)</span>
+                <span class="ov-pill neutral">Week 9 — Week 20</span>
+              </div>
+              <div class="ov-card-body">
+                <div class="ov-callout info" style="margin-bottom:14px">
+                  <div class="ov-callout-title">Development approach</div>
+                  <p class="ov-text">This phase is delivered via traditional software development — no AI-assisted code generation. The validated HTML demo and its agent architecture serve as the full functional specification. A dedicated development team builds the production system against that specification.</p>
+                </div>
+                <div class="ov-table-wrap">
+                  <table class="ov-table">
+                    <thead><tr><th>Stream</th><th>Scope</th><th>Duration</th></tr></thead>
+                    <tbody>
+                      <tr><td>Backend — Agent layer</td><td>Port and harden the multi-agent system: router, specialists, decision engine, confidence engine, access control. Production-grade Node.js with tests, logging, and error handling.</td><td>Wks 9–13</td></tr>
+                      <tr><td>Backend — Data &amp; RAG</td><td>Ingest validated policy documents into a vector store. Build the retrieval pipeline (chunking, embedding, semantic search) that supplies policy chunks to agents.</td><td>Wks 9–14</td></tr>
+                      <tr><td>Backend — API layer</td><td>REST API with authentication, rate limiting, audit logging, and user context management. Integrates with company identity provider (SSO).</td><td>Wks 11–15</td></tr>
+                      <tr><td>Frontend — Expat portal</td><td>Production React SPA: chat interface, action log, profile sidebar, notification bar. Matches the validated HTML demo UX exactly.</td><td>Wks 13–18</td></tr>
+                      <tr><td>Frontend — PBP dashboard</td><td>Admin view: all expat profiles, action stats, overdue flags, user simulation, and reporting.</td><td>Wks 16–20</td></tr>
+                      <tr><td>QA &amp; security review</td><td>End-to-end testing, policy boundary validation, penetration testing, and data privacy review.</td><td>Wks 18–20</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="ov-card">
+              <div class="ov-card-header">
+                <span class="ov-card-title">Phase 4 — Pilot &amp; Rollout</span>
+                <span class="ov-pill neutral">Week 20 — Week 24</span>
+              </div>
+              <div class="ov-card-body">
+                <p class="ov-text" style="margin-bottom:14px">Production system is deployed to a controlled pilot group of 2–3 active expat assignments. Feedback from live usage is collected and addressed before full rollout to all assignments.</p>
+                <div class="ov-table-wrap">
+                  <table class="ov-table">
+                    <thead><tr><th>Activity</th><th>Detail</th></tr></thead>
+                    <tbody>
+                      <tr><td>Pilot deployment</td><td>2–3 live expat assignments across different assignment types</td></tr>
+                      <tr><td>PBP onboarding</td><td>Training for the GM and PBP team on admin dashboard and escalation workflow</td></tr>
+                      <tr><td>Live monitoring</td><td>Track answer quality, escalation rates, action completion, and expat engagement</td></tr>
+                      <tr><td>Issue resolution</td><td>Address any production issues before full rollout gate</td></tr>
+                      <tr><td>Full rollout</td><td>Open to all active assignments — GM team takes operational ownership</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="ov-table-wrap" style="margin-top:16px">
+              <table class="ov-table">
+                <thead><tr><th>Phase</th><th>Focus</th><th>Duration</th><th>Gate</th></tr></thead>
+                <tbody>
+                  <tr class="row-success"><td>1 — Validation</td><td>Business team tests HTML demo</td><td>4 weeks</td><td>Feedback documented</td></tr>
+                  <tr class="row-info"><td>2 — Iteration</td><td>Agents, FAQs, and prompts enriched</td><td>4 weeks</td><td>Formal business approval</td></tr>
+                  <tr><td>3 — Development</td><td>Traditional build of production system</td><td>12 weeks</td><td>QA and security sign-off</td></tr>
+                  <tr><td>4 — Pilot &amp; Rollout</td><td>Live deployment and full rollout</td><td>4 weeks</td><td>GM team operational ownership</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ── FOOTER ── -->
+          <hr class="ov-divider"/>
+          <div class="ov-footer">
+            <span>Expat Concierge V2.4 · Confidential · 2026</span>
+            <span>Global Mobility · AI-Powered · Policy-Scoped</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 <div id="toasts"></div>
