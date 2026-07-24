@@ -1,0 +1,16 @@
+{
+  "name": "expat-concierge",
+  "version": "2.4.0",
+  "description": "Expat Concierge V2 — Secure, profile-aware Global Mobility concierge",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "openai": "^4.52.0"
+  }
+}

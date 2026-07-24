@@ -1,0 +1,24 @@
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Office temp files
+~$*.pptx
+~$*.xlsx
+~$*.docx
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build output
+dist/
+build/
