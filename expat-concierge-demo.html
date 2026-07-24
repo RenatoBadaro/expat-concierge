@@ -1130,7 +1130,11 @@ async function testToken() {
       }
     }
   } catch (e) {
-    setTokenStatus("✗ Network error: " + e.message, "err");
+    if (e.message === "Failed to fetch" || e.name === "TypeError") {
+      setTokenStatus("✗ Network blocked — your network or firewall is preventing access to the AI service (models.inference.ai.azure.com). Try on a different network (e.g. mobile hotspot) or ask your IT team to whitelist that domain.", "err");
+    } else {
+      setTokenStatus("✗ Network error: " + e.message, "err");
+    }
   } finally {
     btn.disabled = false; btn.textContent = "Test Connection";
   }
@@ -1976,6 +1980,11 @@ async function send() {
         '<p style="color:var(--red)">⚠ Access code rejected or expired.</p>' +
         '<p style="margin-top:8px;font-size:13px">The access code is no longer valid. Please ask your contact for a new one and update it in Settings.</p>' +
         '<p style="margin-top:10px"><button onclick="showPage(\'config\')" style="background:var(--yellow);color:#111;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px">Update Access Code →</button></p>'
+      );
+    } else if (err.message === "Failed to fetch" || err.name === "TypeError") {
+      appendMsg("bot",
+        '<p style="color:var(--red)">⚠ Network blocked — the AI service could not be reached.</p>' +
+        '<p style="margin-top:8px;font-size:13px">Your network or firewall is preventing access to <code>models.inference.ai.azure.com</code>. Try on a different network (e.g. mobile hotspot) or ask your IT team to whitelist that domain.</p>'
       );
     } else {
       appendMsg("bot",'<p style="color:var(--red)">⚠ ' + escHtml(err.message) + '</p>');
