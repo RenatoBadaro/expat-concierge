@@ -1765,6 +1765,174 @@ function renderRelatedTasksCard(related) {
     '</div>' + rows + '</div>';
 }
 
+// ── Policy knowledge base ──────────────────────────────────────────────────
+const POLICY_KNOWLEDGE = {
+  LTA: `SOURCE: 2024 Global Mobility LTA Policy V3.0 — AB InBev (effective 01/01/2026)
+
+ELIGIBILITY & DURATION
+- Senior Leadership (Bands 0–III) and Critical Skills (Band IV, People Bet): 3 years, max 5 years.
+- Company may shorten or terminate the assignment at any time.
+
+GOVERNANCE
+- Host PBP submits "Request for Expat Assignment" before any package is prepared.
+- Assignee formally accepts via signature of the Letter of Assignment (LOA).
+- Where this policy and the LOA differ, the LOA governs.
+
+PRE-ASSIGNMENT TRIP (LOOK & SEE)
+- Up to 5 days for assignee and partner. Costs follow ZBB Travel Policy.
+- DSP (Destination Service Provider, e.g. K2) assists with home search, school enrollment, settling-in.
+- Assignee CANNOT sign a lease without Global Mobility consultation.
+- Children join only if: school entrance exam required, or sequential assignment without local childcare support.
+
+SETTLING-IN SERVICES
+- Initiated after LOA is signed. DSP helps with bank account, driver's license, local registrations.
+
+LANGUAGE TRAINING
+- Up to 60 hours per person over age 4, over 4 years — host country primary language only.
+- Non-transferable between family members. Alternative vendor reimbursed up to ABI's contracted amount.
+
+CULTURAL TRAINING
+- Online tool provided. Additional in-person training requires Global Mobility approval.
+
+PARTNER SUPPORT
+- Job search, career counselling, education, wellness, social connection. Managed through RMC.
+
+TEMPORARY LIVING
+- Max 45 days (home + host combined). Furnished apartment if available; otherwise hotel per ZBB Travel Policy.
+- Meals reimbursed at 70% per diem (adult) / 35% (child ≤12) only in accommodation without cooking facilities.
+- Must NOT overlap with start of a long-term lease.
+
+HOUSEHOLD GOODS — SURFACE SHIPMENT (CONTAINER)
+- Assignee only → 20ft container.
+- Assignee + 1 → 20ft container.
+- Assignee + 2 or more → 40ft container.
+- CONTAINER SIZE IS FIXED BY POLICY. No exceptions. K2 and HR cannot adjust the container size.
+- NOT covered: motor vehicles, bulky/heavy items (piano, pool table), art/antiques, alcohol.
+- One shipment only. Split shipment only if total cost ≤ full shipment cost.
+
+CASH IN LIEU OF SURFACE SHIPMENT
+- Standard policy option — NOT an exception. No GM approval required. Not uncommon.
+- ABI pays a cash allowance (amount provided by Global Mobility) to buy/rent furniture in host country.
+- Paid net via host payroll after relocation.
+- Excess baggage benefit still applies if cash in lieu is chosen.
+- Storage in home country and furniture rental in host country are NOT covered if cash in lieu is chosen.
+- Cash in lieu is NOT available upon repatriation (surface shipment provided instead).
+
+STORAGE
+- Company covers storage of items left in home country for duration of assignment.
+- Does NOT apply if cash in lieu was chosen.
+
+EXCESS BAGGAGE
+- USD 200 per accompanying family member (applies regardless of container or cash in lieu choice).
+
+PET SHIPMENT
+- Up to USD 2,000 total for all pets combined — covers transport, quarantine, documents, vaccinations.
+- Cannot be used for employee/family flights. Assignee manages all logistics.
+
+HOUSEHOLD GOODS INSURANCE IN TRANSIT
+- Company covers insurance up to USD 250,000 combined valuation. Assignee pays any additional premium.
+
+HOUSING SUBSIDY
+- ABI provides a fixed Housing Subsidy based on job level and family size.
+- Amount is confirmed in the Letter of Assignment (LOA) — SET BY ABI, NOT by K2.
+- K2 (DSP) assists with finding and securing accommodation. K2 does NOT determine the budget.
+- Housing Subsidy is based on third-party data for unfurnished expat housing in the host location.
+- NOT intended to fully cover housing costs. Assignee pays any excess above the subsidy.
+- If actual cost < subsidy: assignee is NOT entitled to keep the difference.
+- Subsidy remains fixed unless banding or family size increases.
+- Paid via host payroll, directly to landlord, or through RMC depending on host location.
+- NOT covered: security deposit, excess rent, utilities, telephone.
+- Assignee strongly discouraged from purchasing property in host country.
+- NEVER suggest escalation to Global Mobility for standard housing questions.
+
+INTEGRATION ALLOWANCE
+- One month net host base salary, maximum USD 10,000 — one-time net payment via host payroll.
+- Covers miscellaneous relocation expenses: painting, rewiring, furniture assembly, minor appliances, clothing for new climate, banking/notary fees, cable/internet installation, disposal of goods, etc.
+
+SCHOOLING SUBSIDY
+- Company recommends local public school first.
+- Private/international school subsidy only if at least one applies: language barrier, address doesn't guarantee school admission, or public school quality is unreasonably low.
+- NO schooling subsidy for relocations to the US.
+- Eligible children: ages 4 through end of secondary school.
+- Amount confirmed in LOA — maximum/cap amount. Actual costs reimbursed up to subsidy; excess paid by assignee.
+- NOT covered: nursery, childcare, university/college, post-secondary.
+- Extra costs (meals, books, transport, exam fees): assignee's responsibility.
+- Subsidy starts only once family arrives in host with all legally compliant permits.
+
+CHILDCARE ALLOWANCE
+- US/NYC: USD 15,000 net/year per child (NYC); USD 10,000 net/year per child (other US).
+- All other locations: USD 10,000 gross/year per accompanying child aged 0–4 (or until compulsory school age in host).
+- No allowance if child stays in home country.
+
+HOME LEAVE
+- 1 round-trip ticket per accompanying family member per 12 months on assignment.
+- Non-carry-over — unused leave in a 12-month period is forfeited.
+- Hotel, meals, transport during home leave: NOT covered.
+- Children under 19 not accompanying: 1 round-trip/year to visit assignee in host.
+
+EMERGENCY LEAVE
+- Airfare provided for death or serious illness of immediate family member. Contact Global Mobility for other emergencies.
+
+BASE SALARY
+- Determined by host position/banding using Rewards policies; fixed in host currency; paid gross.
+- Merit reviews follow host country process.
+
+VALUE EQUALIZATION ALLOWANCE
+- If home net salary > host net salary (after estimated taxes): Company protects home net pay.
+- Amount fixed in home currency; converted monthly at GM Exchange Rate; never below zero.
+- Not carried into future compensation proposals.
+
+BONUS
+- Home country bonus scheme applies; targets set by host line manager; paid via host payroll.
+- Bonus is tax equalized — hypothetical home country tax withheld from gross bonus.
+
+LONG-TERM INCENTIVES (RSUs, PSUs, Options)
+- Per home country compensation standards. All LTI taxes are the ASSIGNEE's personal responsibility. No tax equalization on LTIs.
+
+TAX ASSISTANCE
+- Company engages designated tax provider (Vialto). Assignee MUST use the Company-designated provider.
+- Required: tax exit consultation (home) + tax entrance consultation (host). Equity consultation if holding RSUs/options.
+- Company covers tax return preparation fees (home + host) for duration of assignment + up to 3 years post or last year of dual-country RSU vesting.
+- NOT covered: personal tax planning, partner's separate income tax returns (unless legally required).
+- Personal income taxes (dividends, capital gains, rental income, spousal income): assignee's responsibility.
+- Financial/legal advice: reimbursement up to USD 3,500 (personal finances); USD 1,500 one-time (will preparation).
+
+HEALTH INSURANCE
+- Company ensures coverage for assignee and family throughout assignment.
+- Stays on home plan where possible; if insufficient, enrolled in host plan.
+- International healthcare covers host and home countries only — not third countries.
+
+END OF ASSIGNMENT — REPATRIATION
+- Same household goods rules as expatriation. Cash in lieu NOT available on repatriation.
+- Temporary living: up to 30 days (home + host combined).
+- Re-integration Allowance: one month net host base salary, max USD 10,000 (not applicable for gross misconduct or voluntary resignation).
+- Tax filing assistance: repatriation year + up to 3 years post or last year of dual-country RSU vesting.
+- Visa/work permit cancelled within 30 days of assignment end.
+- Schooling subsidy may continue through end of school term (pending approval).
+
+VOLUNTARY RESIGNATION
+- All assignment benefits cease on last day.
+- Assignee covers own repatriation costs.
+- If resignation in first year: assignee must REPAY all relocation costs.
+
+AGENT RULES — WHAT TO ALWAYS STATE CORRECTLY
+- Housing Subsidy is a fixed amount set by ABI, confirmed in the LOA. K2 (DSP) assists with home finding only.
+- Cash in lieu is a standard option — not an exception, not uncommon, no GM approval required.
+- Container size is fixed by policy — no exceptions, no adjustments by K2 or HR.
+- The LOA governs when it differs from this policy.
+
+AGENT RULES — WHAT TO NEVER SAY
+- NEVER say housing is "fully covered" — it is a subsidy, not full coverage.
+- NEVER say "contact K2 to confirm the housing budget" — the budget is in the LOA.
+- NEVER suggest container size can be adjusted or that exceptions are possible.
+- NEVER say cash in lieu is uncommon or requires GM approval.
+- NEVER suggest escalation to Global Mobility for standard housing, shipping, or cash in lieu questions.`,
+
+  STA: null,
+  IA: null,
+  COMMUTER: null,
+};
+
 // ── System prompt ──────────────────────────────────────────────────────────
 function buildSystemPrompt(ctx, question) {
   const { identity: id, permissions: perm, corporateContext: corp, profile: p } = ctx;
@@ -1821,11 +1989,9 @@ After your full response, add a line containing only "---" followed by exactly 2
 ?? What documents do I need to prepare now?
 
 ════════════════════════════
-POLICY RULES
+POLICY RULES — ${perm.assignmentType}
 ════════════════════════════
-No internal policies loaded — use general ${perm.assignmentType} market practice only.
-Always state this is general practice, not confirmed policy.
-NEVER invent values, dates, or thresholds.
+${POLICY_KNOWLEDGE[perm.assignmentType] || "No internal policy loaded for this assignment type — use general market practice only and always state this is general practice, not confirmed policy. NEVER invent values, dates, or thresholds."}
 
 ════════════════════════════
 USER PROFILE
