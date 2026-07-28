@@ -1838,7 +1838,9 @@ function checkScope(question) {
   const u = USERS[activeUserId];
   const type = u.permissions.assignmentType.toLowerCase();
   const q = question.toLowerCase();
-  const bad = ALL_TYPES.filter(t => t !== type && q.includes(t));
+  // Use word-boundary regex to avoid false positives from substrings
+  // e.g. "status" must NOT trigger "sta", "via" must NOT trigger "ia"
+  const bad = ALL_TYPES.filter(t => t !== type && new RegExp("\\b" + t + "\\b").test(q));
   if (bad.length) return "Your account is set up for " + u.permissions.assignmentType + " assignments. I can only answer questions within your authorized assignment type. For " + bad.map(t => t.toUpperCase()).join(", ") + " questions, please contact your Global Mobility team.";
   return null;
 }
@@ -1881,7 +1883,13 @@ async function send() {
   if (!activeUserId) { toast("Please select a user first.", "err"); return; }
 
   const violation = checkScope(question);
-  if (violation) { appendMsg("bot", '<p>' + escHtml(violation) + '</p>'); chatInput.value = ""; return; }
+  if (violation) {
+    chatInput.value = "";
+    sendBtn.disabled = true;
+    appendMsg("bot", '<p>' + escHtml(violation) + '</p>');
+    setTimeout(() => { sendBtn.disabled = false; }, 800);
+    return;
+  }
 
   chatBusy = true; sendBtn.disabled = true;
   chatInput.value = ""; chatInput.style.height = "auto";
