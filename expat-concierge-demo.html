@@ -1810,7 +1810,7 @@ HOUSEHOLD GOODS — SURFACE SHIPMENT (CONTAINER)
 - NOT covered: motor vehicles, bulky/heavy items (piano, pool table), art/antiques, alcohol.
 - One shipment only. Split shipment only if total cost ≤ full shipment cost.
 
-CASH IN LIEU OF SURFACE SHIPMENT
+CASH IN LIEU OF SURFACE SHIPMENT — §6.3.3
 - Standard policy option — NOT an exception. No GM approval required. Not uncommon.
 - ABI pays a cash allowance (amount provided by Global Mobility) to buy/rent furniture in host country.
 - Paid net via host payroll after relocation.
@@ -1822,17 +1822,17 @@ STORAGE
 - Company covers storage of items left in home country for duration of assignment.
 - Does NOT apply if cash in lieu was chosen.
 
-EXCESS BAGGAGE
+EXCESS BAGGAGE — §6.3.4
 - USD 200 per accompanying family member (applies regardless of container or cash in lieu choice).
 
-PET SHIPMENT
+PET SHIPMENT — §6.3.5
 - Up to USD 2,000 total for all pets combined — covers transport, quarantine, documents, vaccinations.
 - Cannot be used for employee/family flights. Assignee manages all logistics.
 
 HOUSEHOLD GOODS INSURANCE IN TRANSIT
 - Company covers insurance up to USD 250,000 combined valuation. Assignee pays any additional premium.
 
-HOUSING SUBSIDY
+HOUSING SUBSIDY — §9.2
 - ABI provides a fixed Housing Subsidy based on job level and family size.
 - Amount is confirmed in the Letter of Assignment (LOA) — SET BY ABI, NOT by K2.
 - K2 (DSP) assists with finding and securing accommodation. K2 does NOT determine the budget.
@@ -1845,14 +1845,14 @@ HOUSING SUBSIDY
 - Assignee strongly discouraged from purchasing property in host country.
 - NEVER suggest escalation to Global Mobility for standard housing questions.
 
-INTEGRATION ALLOWANCE
+INTEGRATION ALLOWANCE — §9.3
 - One month net host base salary, maximum USD 10,000 — one-time net payment via host payroll.
 - Covers miscellaneous relocation expenses: painting, rewiring, furniture assembly, minor appliances, clothing for new climate, banking/notary fees, cable/internet installation, disposal of goods, etc.
 
-SCHOOLING SUBSIDY
+SCHOOLING SUBSIDY — §8.1
 - Company recommends local public school first.
-- Private/international school subsidy only if at least one applies: language barrier, address doesn't guarantee school admission, or public school quality is unreasonably low.
-- NO schooling subsidy for relocations to the US.
+- ⚠️ NO SCHOOLING SUBSIDY FOR HOST = UNITED STATES. This is an absolute exclusion with no exceptions.
+- If the user's host country is the United States, ALWAYS state clearly: "The schooling subsidy does not apply to your assignment — the policy explicitly excludes US locations (§8.1)."
 - Eligible children: ages 4 through end of secondary school.
 - Amount confirmed in LOA — maximum/cap amount. Actual costs reimbursed up to subsidy; excess paid by assignee.
 - NOT covered: nursery, childcare, university/college, post-secondary.
@@ -1864,7 +1864,7 @@ CHILDCARE ALLOWANCE
 - All other locations: USD 10,000 gross/year per accompanying child aged 0–4 (or until compulsory school age in host).
 - No allowance if child stays in home country.
 
-HOME LEAVE
+HOME LEAVE — §8.3.1
 - 1 round-trip ticket per accompanying family member per 12 months on assignment.
 - Non-carry-over — unused leave in a 12-month period is forfeited.
 - Hotel, meals, transport during home leave: NOT covered.
@@ -1945,6 +1945,11 @@ function buildSystemPrompt(ctx, question) {
   if (fam.hasPartner) lines.push("Has partner: yes");
   if (fam.hasChildren) lines.push("Has children: yes, ages "+fam.childrenAges.join(", ")+" — school search: "+(mv.needsSchoolSearch?"needed":"not needed"));
   if (fam.hasPets) lines.push("Has pets: yes");
+  // Host-country-specific policy exclusions — injected as hard flags for the AI
+  const hostUpper = (corp.hostCountry||"").toUpperCase();
+  if (hostUpper.includes("UNITED STATES") || hostUpper.includes("USA") || hostUpper.includes("US")) {
+    lines.push("⚠️ HOST = UNITED STATES: Schooling Subsidy does NOT apply (§8.1 — US explicitly excluded). Childcare Allowance is net (§8.2 — US/NYC rates). NEVER tell this user they may receive a schooling subsidy.");
+  }
   if (mob.firstAssignment) lines.push("FIRST ASSIGNMENT — provide step-by-step guidance");
   if (mob.languageBarrier) lines.push("Language barrier: yes — simple language only");
   if (fin.concernedAboutTaxes) lines.push("Tax concerns: yes — flag tax implications");
