@@ -110,6 +110,15 @@
     .cs-action-chip.overdue .cs-action-badge{background:rgba(229,57,53,.12);color:var(--red)}
     .cs-action-chip.soon    .cs-action-badge{background:rgba(180,83,9,.12);color:var(--amber)}
 
+    /* ── Category cards ── */
+    .cat-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:520px;margin-top:4px}
+    .cat-card{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;background:var(--white);border:1.5px solid var(--g2);border-radius:12px;cursor:pointer;transition:all .15s;font-family:inherit;text-align:left}
+    .cat-card:hover{border-color:var(--teal);background:var(--teal-xlt);transform:translateY(-2px);box-shadow:0 4px 12px rgba(15,61,76,.1)}
+    .cat-card-icon{font-size:18px;line-height:1;flex-shrink:0;margin-top:1px}
+    .cat-card-body{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .cat-card-title{font-size:12px;font-weight:700;color:var(--g8);letter-spacing:.1px}
+    .cat-card-desc{font-size:11px;color:var(--g3);line-height:1.35}
+
     /* ── Chat ── */
     .chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;padding:16px 20px}
     .chat-topbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-shrink:0;flex-wrap:wrap}
@@ -1338,6 +1347,10 @@ function switchUser(id) {
           '<div class="cs-label">Action log</div>' +
           '<div class="cs-action-chips" id="chatActionChips"></div>' +
         '</div>' +
+        '<div class="cs-section">' +
+          '<div class="cs-label">Browse by topic</div>' +
+          '<div class="cat-cards" id="catCards"></div>' +
+        '</div>' +
       '</div>' +
     '</div>';
   document.getElementById("chatMetaBadges").innerHTML = "";
@@ -1405,6 +1418,9 @@ function renderProfile(ctx) {
 
   // Action log chips (overdue + upcoming)
   renderWelcomeActionChips(ctx.id);
+
+  // Category browse cards
+  renderCategoryCards(ctx);
 }
 
 function renderWelcomeActionChips(userId) {
@@ -1439,6 +1455,102 @@ function renderWelcomeActionChips(userId) {
       '<span class="cs-action-badge">' + badge + '</span>';
     btn.addEventListener("click", () => askQuestion(question));
     chipsEl.appendChild(btn);
+  });
+}
+
+// ── Category cards ────────────────────────────────────────────────────────
+function renderCategoryCards(ctx) {
+  const el = document.getElementById("catCards");
+  if (!el) return;
+  const type = ctx.permissions.assignmentType;
+  const name = ctx.identity.name.split(" ")[0];
+
+  const CARDS = [
+    {
+      icon: "📋",
+      title: "Policy",
+      desc: "Entitlements, limits & rules",
+      questions: [
+        "What are my key policy entitlements for my " + type + " assignment?",
+        "What is my housing subsidy?",
+        "What is my integration allowance?",
+        "How does the schooling subsidy work?",
+        "What are my home leave entitlements?",
+      ]
+    },
+    {
+      icon: "✅",
+      title: "My Actions",
+      desc: "Pending tasks & deadlines",
+      questions: [
+        "What are my most urgent pending actions right now?",
+        "What tasks are overdue and what should I do about them?",
+        "What do I need to prepare before my move date?",
+        "What immigration steps are still pending?",
+      ]
+    },
+    {
+      icon: "📞",
+      title: "Contacts",
+      desc: "Who handles what",
+      questions: [
+        "Who do I contact for immigration and visa questions?",
+        "Who is responsible for my housing search in the host country?",
+        "Who handles my tax filing during the assignment?",
+        "Who should I contact if I have a payroll question?",
+      ]
+    },
+    {
+      icon: "💡",
+      title: "Other Topics",
+      desc: "Relocation, pets, family & more",
+      questions: [
+        "How does household goods shipment work for my assignment?",
+        "Can I bring my pet to the host country?",
+        "How does temporary living work at the start of my assignment?",
+        "What happens at the end of my assignment?",
+      ]
+    }
+  ];
+
+  el.innerHTML = CARDS.map((c, i) =>
+    '<button class="cat-card" data-idx="' + i + '">' +
+      '<span class="cat-card-icon">' + c.icon + '</span>' +
+      '<span class="cat-card-body">' +
+        '<span class="cat-card-title">' + c.title + '</span>' +
+        '<span class="cat-card-desc">' + c.desc + '</span>' +
+      '</span>' +
+    '</button>'
+  ).join("");
+
+  el.querySelectorAll(".cat-card").forEach(btn => {
+    const card = CARDS[+btn.dataset.idx];
+    btn.addEventListener("click", () => {
+      // Replace welcome screen with a mini-chip picker for the chosen category
+      const empty = document.getElementById("chatEmpty");
+      if (!empty) { askQuestion(card.questions[0]); return; }
+
+      // Show sub-question chips for this category
+      const sugg = document.getElementById("chatSuggestions");
+      if (!sugg) { askQuestion(card.questions[0]); return; }
+
+      sugg.innerHTML =
+        '<div class="cs-section">' +
+          '<div class="cs-label" style="display:flex;align-items:center;gap:6px">' +
+            '<button onclick="renderProfile(activeUserCtx)" style="background:none;border:none;cursor:pointer;color:var(--g3);font-size:11px;padding:0;font-family:inherit">← Back</button>' +
+            '<span>' + card.icon + ' ' + card.title + '</span>' +
+          '</div>' +
+          '<div class="cs-chips" style="grid-template-columns:1fr">' +
+            card.questions.map(q =>
+              '<button class="cs-chip" data-q="' + q.replace(/"/g, '&quot;') + '">' + q + '</button>'
+            ).join("") +
+          '</div>' +
+        '</div>';
+
+      sugg.querySelectorAll(".cs-chip").forEach(b =>
+        b.addEventListener("click", () => askQuestion(b.dataset.q))
+      );
+    });
   });
 }
 
