@@ -5,12 +5,18 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "record-demo": "node scripts/record-demo-video.mjs",
+    "build-demo-video": "node scripts/build-demo-video.mjs"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
     "express": "^4.19.2",
     "openai": "^4.52.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.1"
   }
 }

@@ -1,0 +1,3031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expat Concierge V3 | Global Mobility — Demo</title>
+  <!-- Design system: docs/people-tech-design-guide.md (People Tech Design Guide) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="assets/marked.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      /* People Tech tokens — see docs/people-tech-design-guide.md */
+      --petrol:#0F3B4F;--yellow:#F4D21F;--yellow-dk:#E7C400;--yellow-lt:rgba(244,210,31,.16);
+      --slate:#2F3A4A;
+      --teal:var(--petrol);--teal-lt:#145a75;--teal-dim:rgba(15,59,79,.08);--teal-xlt:rgba(15,59,79,.04);
+      --bg:#FAFAFB;--white:#FFFFFF;
+      --g1:#F5F6F8;--g2:#E5E7EB;--g3:#D1D5DB;--g5:#6B7280;--g7:#374151;--g8:#111827;
+      --red:#D14343;--green:#1F9D68;--amber:#C99700;--blue:#1565c0;
+      --r:16px;--r-md:12px;--sw:72px;--hh:72px;
+      --shadow:0 2px 8px rgba(15,39,68,.04);
+      --focus-yellow:0 0 0 4px rgba(244,210,31,.28);
+      --focus-petrol:0 0 0 4px rgba(15,59,79,.14);
+    }
+    html,body{height:100%;font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--g8);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+    .shell{display:flex;height:100vh;overflow:hidden}
+
+    /* ── Sidebar (People Tech: white, active = yellow) ── */
+    .sidebar{width:var(--sw);background:var(--white);border-right:1px solid var(--g2);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;flex-shrink:0;z-index:100}
+    .sb-logo{width:44px;height:44px;margin-bottom:4px;background:var(--petrol);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--yellow);letter-spacing:-.5px;flex-shrink:0}
+    .nav-item{width:52px;min-height:52px;border-radius:var(--r-md);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:background .18s,color .18s;gap:4px;color:var(--g5);font-size:9px;font-weight:600;text-align:center;border:none;background:transparent;position:relative}
+    .nav-item svg{width:20px;height:20px;stroke:var(--slate)}
+    .nav-item:hover{background:var(--g1);color:var(--slate)}
+    .nav-item.active{background:var(--yellow);color:var(--g8);box-shadow:var(--shadow)}
+    .nav-item.active svg{stroke:var(--g8)}
+    .nav-badge{position:absolute;top:2px;right:2px;background:var(--red);color:#fff;border-radius:10px;font-size:8px;font-weight:800;padding:1px 5px;min-width:14px;text-align:center;line-height:14px}
+    .sb-spacer{flex:1}
+    .v3-badge{font-size:8px;font-weight:800;color:var(--petrol);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+
+    /* ── Page ── */
+    .page{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+    .header{height:var(--hh);background:var(--white);border-bottom:1px solid var(--g2);display:flex;align-items:center;padding:0 32px;gap:16px;flex-shrink:0}
+    .header-logo{display:flex;align-items:center;gap:12px;font-weight:800;font-size:15px;letter-spacing:.4px;color:var(--petrol);text-transform:uppercase}
+    .header-bar{width:4px;height:24px;background:var(--yellow);border-radius:2px}
+    .header-v3{font-size:10px;font-weight:800;color:var(--petrol);background:var(--yellow-lt);padding:3px 8px;border-radius:var(--r-md);letter-spacing:.4px;border:1px solid rgba(244,210,31,.35)}
+    .demo-badge{font-size:11px;font-weight:600;color:var(--g7);background:var(--g1);padding:4px 10px;border-radius:var(--r-md);border:1px solid var(--g2)}
+    .header-spacer{flex:1}
+    .user-selector-wrap{display:flex;align-items:center;gap:10px}
+    .user-selector-label{font-size:13px;color:var(--g5);font-weight:600;white-space:nowrap}
+    .user-selector{min-height:44px;border:1px solid var(--g3);border-radius:var(--r-md);padding:8px 14px;font-size:14px;font-family:inherit;outline:none;color:var(--g8);background:var(--white);cursor:pointer;transition:border-color .18s,box-shadow .18s;min-width:220px}
+    .user-selector:focus{border-color:var(--petrol);box-shadow:var(--focus-petrol)}
+    .user-av{width:40px;height:40px;border-radius:50%;background:var(--petrol);color:var(--yellow);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;border:2px solid var(--yellow)}
+
+    /* ── Pages ── */
+    .pg{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+    .pg.active{display:flex}
+    #pgChat{flex-direction:row;overflow:hidden}
+    #pgRisk,#pgActions,#pgUsers{min-height:0}
+
+    /* ── Chat sidebar ── */
+    .chat-sidebar{width:280px;min-width:280px;background:var(--g1);border-right:1px solid var(--g2);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+    .sidebar-toggle{display:none;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:12px 16px;background:var(--white);border:none;border-bottom:1px solid var(--g2);cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:var(--petrol);flex-shrink:0}
+    .sidebar-toggle-icon{width:18px;height:18px;transition:transform .2s;color:var(--g5)}
+    .chat-sidebar.collapsed .sidebar-toggle-icon{transform:rotate(-90deg)}
+    .sidebar-inner{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+    .sidebar-inner::-webkit-scrollbar{width:5px}
+    .sidebar-inner::-webkit-scrollbar-thumb{background:var(--g2);border-radius:4px}
+    .sidebar-card{background:var(--white);border-radius:var(--r);border:1px solid var(--g2);border-bottom:4px solid var(--yellow);box-shadow:var(--shadow);overflow:hidden}
+    .sidebar-card-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g5);padding:12px 14px 0}
+    .sidebar-card--employee .profile-header{border-bottom:none;border-radius:0;padding-bottom:16px}
+    .sidebar-nav{display:flex;flex-direction:column;gap:10px}
+    .sidebar-nav-card{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;background:var(--white);border:1px solid var(--g2);border-bottom:4px solid var(--yellow);border-radius:var(--r);cursor:pointer;transition:transform .18s,box-shadow .18s;font-family:inherit;text-align:left;box-shadow:var(--shadow)}
+    .sidebar-nav-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(15,39,68,.08)}
+    .sidebar-nav-card:active{transform:translateY(0)}
+    .snav-icon{font-size:18px;line-height:1;flex-shrink:0;width:28px;text-align:center}
+    .snav-title{font-size:13px;font-weight:800;color:var(--petrol);letter-spacing:.3px}
+    .chat-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+    .profile-panel{padding:20px;overflow-y:auto;flex:1}
+    .profile-panel::-webkit-scrollbar{width:5px}
+    .profile-panel::-webkit-scrollbar-thumb{background:var(--g2);border-radius:4px}
+    .profile-header{display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px 20px;background:var(--petrol);color:#fff}
+    .profile-header--compact{padding:20px 16px}
+    .profile-av{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-weight:700;font-size:20px;display:flex;align-items:center;justify-content:center;border:3px solid var(--yellow);margin-bottom:10px}
+    .profile-name{font-size:17px;font-weight:700;color:#fff;line-height:1.25}
+    .profile-job{font-size:14px;color:rgba(255,255,255,.88);margin-top:6px;font-weight:500}
+    .profile-assignment{display:inline-block;margin-top:10px;font-size:12px;font-weight:700;background:var(--yellow);color:var(--g8);padding:5px 14px;border-radius:20px;letter-spacing:.3px}
+    .profile-tags{display:none}
+    .ptag{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+    .ptag.type{background:var(--teal);color:#fff}
+    .ptag.stage{background:rgba(255,255,255,.15);color:#fff}
+    .ptag.risk{background:rgba(229,57,53,.1);color:var(--red)}
+    .ptag.ok{background:rgba(46,125,50,.1);color:var(--green)}
+    .profile-section{margin-bottom:16px}
+    .profile-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g5);margin-bottom:8px}
+    .profile-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--g2)}
+    .profile-row:last-child{border-bottom:none}
+    .pr-label{font-size:12px;color:var(--g5)}
+    .pr-source{display:block;font-size:10px;color:var(--g3);font-weight:500;margin-top:2px;line-height:1.2}
+    .pr-value{font-size:12px;font-weight:600;color:var(--g8);text-align:right;max-width:55%}
+    .pr-value.warn{color:var(--red)}
+    .pr-value.ok{color:var(--green)}
+
+    /* ── Action Bar (above chat) — hybrid compact sum-cards ── */
+    .chat-action-bar{display:none;align-items:center;gap:10px;padding:10px 16px;background:var(--white);border-bottom:1px solid var(--g2);flex-shrink:0;flex-wrap:wrap}
+    .chat-action-bar.visible{display:flex}
+    .cab-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--g5);white-space:nowrap;flex-shrink:0}
+    .cab-summary{display:flex;gap:8px;flex:1;min-width:0}
+    .cab-sum-card{flex:1;min-width:64px;max-width:96px;background:var(--white);border-radius:var(--r);border:1px solid var(--g2);border-bottom:3px solid var(--yellow);padding:8px 6px;text-align:center;box-shadow:var(--shadow);cursor:pointer;font-family:inherit;transition:transform .18s,box-shadow .18s}
+    .cab-sum-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(15,39,68,.08)}
+    .cab-sum-card.overdue{border-color:rgba(229,57,53,.3);background:rgba(229,57,53,.04);border-bottom-color:var(--red)}
+    .cab-sum-num{font-size:22px;font-weight:900;line-height:1}
+    .cab-sum-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;color:var(--g5)}
+    .cab-sum-card.total .cab-sum-num{color:var(--teal)}
+    .cab-sum-card.done  .cab-sum-num{color:var(--green)}
+    .cab-sum-card.pend  .cab-sum-num{color:var(--amber)}
+    .cab-sum-card.risk-low   .cab-sum-num{color:var(--green)}
+    .cab-sum-card.risk-medium .cab-sum-num{color:var(--amber)}
+    .cab-sum-card.risk-high   .cab-sum-num{color:#E65100}
+    .cab-sum-card.risk-critical{border-color:rgba(229,57,53,.35);background:rgba(229,57,53,.04);border-bottom-color:var(--red)}
+    .cab-sum-card.risk-critical .cab-sum-num{color:var(--red)}
+    .cab-sum-card.risk-low,.cab-sum-card.risk-medium,.cab-sum-card.risk-high,.cab-sum-card.risk-critical{max-width:108px}
+    .cab-notify{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;border:1.5px solid rgba(180,83,9,.35);background:rgba(180,83,9,.06);font-size:11px;font-weight:700;color:var(--amber);cursor:pointer;white-space:nowrap;flex-shrink:0}
+    .cab-notify:hover{background:rgba(180,83,9,.12)}
+    .cab-notify.overdue{border-color:rgba(229,57,53,.35);background:rgba(229,57,53,.06);color:var(--red)}
+    .cab-notify.overdue:hover{background:rgba(229,57,53,.1)}
+
+    /* ── Chat Suggestions (inside chat area) ── */
+    .chat-suggestions{margin-top:20px;width:100%;max-width:520px;display:flex;flex-direction:column;gap:16px}
+    .cs-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--g3);margin-bottom:8px}
+    .cs-chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .cs-chip{padding:12px 16px;background:var(--white);border:1px solid var(--g2);border-radius:var(--r-md);font-size:14px;color:var(--slate);cursor:pointer;transition:all .18s;font-family:inherit;text-align:left;line-height:1.45;font-weight:500;border-bottom:3px solid transparent}
+    .cs-chip:hover{border-color:var(--g3);border-bottom-color:var(--yellow);background:var(--white);transform:translateY(-1px);box-shadow:var(--shadow)}
+
+    /* ── Category cards (legacy — sidebar nav replaces) ── */
+    /* ── Chat ── */
+    .chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;padding:16px 20px}
+    .chat-topbar{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;flex-shrink:0;flex-wrap:wrap}
+    .chat-topbar-icon{width:58px;height:50px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;overflow:hidden;border:1px solid var(--g2);border-bottom:3px solid var(--yellow);box-shadow:var(--shadow);background:var(--white);padding:0}
+    .chat-topbar-icon .journey-map-icon{width:100%;height:100%;display:block;object-fit:cover}
+    .chat-topbar-main{flex:1;min-width:0}
+    .chat-topbar-main h3{font-size:16px;font-weight:700;color:var(--petrol);line-height:1.25}
+    .journey-stepper{display:flex;align-items:center;gap:10px;margin-top:10px;width:100%}
+    .j-flag{font-size:24px;line-height:1;flex-shrink:0;cursor:default}
+    .j-track{display:flex;align-items:center;flex:1;min-width:0}
+    .j-connector{flex:1;height:2px;background:var(--g2);min-width:6px;margin-bottom:16px}
+    .j-connector.done{background:var(--green)}
+    .j-step{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;cursor:default}
+    .j-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--g3);background:var(--white);box-sizing:border-box;transition:background .2s,border-color .2s}
+    .j-step.done .j-dot{background:var(--green);border-color:var(--green)}
+    .j-step.current .j-dot{background:var(--yellow);border-color:var(--yellow);box-shadow:0 0 0 3px rgba(242,193,0,.35)}
+    .j-step.current.warn .j-dot{background:var(--red);border-color:var(--red);box-shadow:0 0 0 3px rgba(229,57,53,.25)}
+    .j-step.upcoming .j-dot{background:var(--g1);border-color:var(--g3)}
+    .j-label{font-size:9px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.35px;text-align:center;line-height:1.2;white-space:nowrap}
+    .j-step.current .j-label{color:var(--petrol)}
+    .j-step.done .j-label{color:var(--green)}
+    .j-step.warn .j-label{color:var(--red)}
+    .chat-meta-badges{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+    .meta-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700}
+    .mb-conf-high{background:rgba(46,125,50,.1);color:var(--green)}
+    .mb-conf-med{background:var(--yellow-lt);color:var(--amber)}
+    .mb-conf-low{background:rgba(229,57,53,.1);color:var(--red)}
+    .mb-risk-low{background:rgba(46,125,50,.1);color:var(--green)}
+    .mb-risk-med{background:var(--yellow-lt);color:var(--amber)}
+    .mb-risk-high{background:rgba(229,57,53,.1);color:var(--red)}
+    .mb-policy{background:var(--teal-dim);color:var(--teal)}
+    .chat-container{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--g2);border-bottom:4px solid var(--yellow);display:flex;flex-direction:column;flex:1;min-height:0}
+    .chat-messages{flex:1;min-height:0;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;background:var(--g1)}
+    .chat-messages::-webkit-scrollbar{width:5px}
+    .chat-messages::-webkit-scrollbar-thumb{background:var(--g2);border-radius:4px}
+    .chat-empty{margin:auto;text-align:center;color:var(--g5);padding:28px 20px}
+    .chat-empty h4{font-size:20px;font-weight:700;color:var(--petrol);margin-bottom:16px}
+    .msg{display:flex;gap:10px;max-width:88%}
+    .msg.user{align-self:flex-end;flex-direction:row-reverse}
+    .msg.bot{align-self:flex-start}
+    .msg-av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+    .msg.user .msg-av{background:var(--petrol);color:var(--yellow);font-weight:700;font-size:10px}
+    .msg.bot .msg-av{background:var(--yellow);color:var(--g8);font-size:15px}
+    .msg-bub{padding:12px 16px;border-radius:var(--r-md);font-size:15px;line-height:1.6;max-width:100%}
+    .msg.user .msg-bub{background:var(--petrol);color:#fff;border-bottom-right-radius:4px}
+    .msg.bot .msg-bub{background:var(--white);color:var(--g8);border:1px solid var(--g2);border-bottom:3px solid var(--yellow);border-bottom-left-radius:4px;box-shadow:var(--shadow)}
+    .msg.bot .msg-bub h1,.msg.bot .msg-bub h2{font-size:15px;font-weight:700;color:var(--petrol);margin:12px 0 6px}
+    .msg.bot .msg-bub h3{font-size:14px;font-weight:700;color:var(--petrol);margin:10px 0 4px}
+    .msg.bot .msg-bub strong{color:var(--petrol)}
+    .msg.bot .msg-bub h1:first-child,.msg.bot .msg-bub h2:first-child{margin-top:0}
+    .msg.bot .msg-bub p{margin-bottom:8px}
+    .msg.bot .msg-bub p:last-child{margin-bottom:0}
+    .msg.bot .msg-bub ul,.msg.bot .msg-bub ol{padding-left:20px;margin-bottom:8px}
+    .msg.bot .msg-bub li{margin-bottom:4px}
+    .msg.bot .msg-bub hr{border:none;border-top:1px solid var(--g2);margin:10px 0}
+    .msg.bot .msg-bub blockquote{border-left:3px solid var(--yellow);padding-left:10px;color:var(--g5);margin:6px 0}
+    .typing{display:flex;align-items:center;gap:4px;padding:2px 0}
+    .typing span{width:6px;height:6px;background:var(--g3);border-radius:50%;animation:bob 1.2s infinite}
+    .typing span:nth-child(2){animation-delay:.2s}
+    .typing span:nth-child(3){animation-delay:.4s}
+    @keyframes bob{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+    .chat-input-row{display:flex;align-items:flex-end;gap:10px;padding:14px;background:var(--white);border-top:1px solid var(--g2)}
+    .chat-input{flex:1;border:1px solid var(--g3);border-radius:var(--r-md);padding:12px 16px;font-size:15px;font-family:inherit;resize:none;outline:none;min-height:48px;max-height:120px;line-height:1.5;transition:border-color .18s,box-shadow .18s;color:var(--g8);background:var(--white)}
+    .chat-input:focus{border-color:var(--petrol);box-shadow:var(--focus-petrol);background:var(--white)}
+    .chat-input::placeholder{color:var(--g5)}
+    .send-btn{width:48px;height:48px;background:var(--yellow);border:none;border-radius:var(--r-md);color:var(--g8);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .18s,transform .1s,box-shadow .18s;font-weight:700}
+    .send-btn:hover{background:var(--yellow-dk)}
+    .send-btn:focus{box-shadow:var(--focus-yellow)}
+    .send-btn:active{transform:scale(.95)}
+    .send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    .send-btn svg{width:18px;height:18px}
+
+    /* ── Actions Page ── */
+    .actions-page{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+    .actions-header{padding:20px 28px 0;background:var(--white);border-bottom:1px solid var(--g2);flex-shrink:0}
+    .actions-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+    .actions-title-group{}
+    .actions-title{font-size:20px;font-weight:900;color:var(--teal)}
+    .actions-subtitle{font-size:12px;color:var(--g5);margin-top:2px}
+    .actions-move-date{font-size:11px;color:var(--g5);background:var(--g1);border:1px solid var(--g2);border-radius:6px;padding:4px 10px;font-weight:600}
+
+    /* Summary cards */
+    .actions-summary{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+    .sum-card{flex:1;min-width:100px;background:var(--white);border-radius:var(--r);border:1px solid var(--g2);border-bottom:4px solid var(--yellow);padding:20px 16px;text-align:center;box-shadow:var(--shadow)}
+    .sum-card.overdue{border-color:rgba(229,57,53,.3);background:rgba(229,57,53,.04)}
+    .sum-num{font-size:28px;font-weight:900;line-height:1}
+    .sum-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-top:3px;color:var(--g5)}
+    .sum-card.total  .sum-num{color:var(--teal)}
+    .sum-card.done   .sum-num{color:var(--green)}
+    .sum-card.pend   .sum-num{color:var(--amber)}
+    .sum-card.overdue .sum-num{color:var(--red)}
+
+    /* Filter pills */
+    .actions-filters{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:14px}
+    .filter-pill{padding:4px 12px;border-radius:20px;border:1.5px solid var(--g2);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;color:var(--g5);background:var(--white);font-family:inherit}
+    .filter-pill:hover{border-color:var(--teal);color:var(--teal)}
+    .filter-pill.active{border-color:var(--yellow);background:var(--yellow);color:var(--g8)}
+    .filter-pill.status-overdue.active{border-color:var(--red);background:var(--red)}
+    .filter-pill.status-done.active{border-color:var(--green);background:var(--green)}
+    .filter-pill.status-pending.active{border-color:var(--amber);background:var(--amber)}
+
+    /* Task list */
+    .actions-body{flex:1;overflow-y:auto;padding:20px 28px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+    .actions-body::-webkit-scrollbar{width:6px}
+    .actions-body::-webkit-scrollbar-thumb{background:var(--g2);border-radius:4px}
+    .actions-empty{text-align:center;color:var(--g5);padding:48px;font-size:13px}
+
+    /* Task card */
+    .task-card{background:var(--white);border-radius:var(--r);border:1px solid var(--g2);padding:16px 20px;display:flex;align-items:flex-start;gap:12px;transition:box-shadow .18s;border-bottom:3px solid var(--g2);box-shadow:var(--shadow)}
+    .task-card:hover{box-shadow:var(--shadow)}
+    .task-card.done{opacity:.65}
+    .task-card.overdue{border-left:3px solid var(--red)}
+    .task-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--g3);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px}
+    .task-check:hover{border-color:var(--green)}
+    .task-check.checked{background:var(--green);border-color:var(--green)}
+    .task-check.checked::after{content:"✓";color:#fff;font-size:11px;font-weight:900}
+    .task-body{flex:1;min-width:0}
+    .task-title{font-size:13px;font-weight:600;color:var(--g8);line-height:1.4;margin-bottom:5px}
+    .task-card.done .task-title{text-decoration:line-through;color:var(--g5)}
+    .task-footer{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .task-cat{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+    .task-status{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+    .st-done{background:rgba(46,125,50,.1);color:var(--green)}
+    .st-pending{background:var(--yellow-lt);color:var(--amber)}
+    .st-overdue{background:rgba(229,57,53,.1);color:var(--red)}
+    .task-deadline{font-size:11px;color:var(--g5);display:flex;align-items:center;gap:3px;margin-left:auto}
+    .task-deadline.overdue{color:var(--red);font-weight:700}
+    .task-order{font-size:11px;color:var(--g3);font-weight:700;min-width:22px;flex-shrink:0;text-align:right}
+
+    /* ── Risk Matrix Page ── */
+    .risk-page{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--bg)}
+    .risk-page::-webkit-scrollbar{width:8px}
+    .risk-page::-webkit-scrollbar-thumb{background:var(--g2);border-radius:4px}
+    .risk-header{padding:20px 28px 16px;background:var(--white);border-bottom:1px solid var(--g2);flex-shrink:0;position:sticky;top:0;z-index:2}
+    .risk-header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .risk-title{font-size:20px;font-weight:900;color:var(--petrol);line-height:1.25}
+    .risk-subtitle{font-size:12px;color:var(--g5);margin-top:6px;line-height:1.5;max-width:640px}
+    .risk-subtitle code{font-size:11px;background:var(--g1);padding:2px 6px;border-radius:4px;font-family:monospace}
+    .risk-score-card{background:var(--white);border:1px solid var(--g2);border-bottom:4px solid var(--yellow);border-radius:var(--r);padding:16px 20px;min-width:120px;text-align:center;box-shadow:var(--shadow);flex-shrink:0}
+    .risk-score-card.low{border-bottom-color:var(--green);background:rgba(31,157,104,.05)}
+    .risk-score-card.medium{border-bottom-color:var(--amber);background:rgba(201,151,0,.05)}
+    .risk-score-card.high{border-bottom-color:#E65100;background:rgba(230,81,0,.05)}
+    .risk-score-card.critical{border-bottom-color:var(--red);background:rgba(209,67,67,.06)}
+    .risk-score-val{font-size:26px;font-weight:900;line-height:1.1;color:var(--petrol)}
+    .risk-score-card.low .risk-score-val{color:var(--green)}
+    .risk-score-card.medium .risk-score-val{color:var(--amber)}
+    .risk-score-card.high .risk-score-val{color:#E65100}
+    .risk-score-card.critical .risk-score-val{color:var(--red)}
+    .risk-score-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--g5);margin-top:6px}
+    .risk-body{padding:20px 28px 48px;display:flex;flex-direction:column;gap:16px;max-width:1280px;width:100%;margin:0 auto;box-sizing:border-box}
+    .risk-panel{background:var(--white);border-radius:var(--r);border:1px solid var(--g2);border-bottom:4px solid var(--yellow);box-shadow:var(--shadow);overflow:hidden;flex-shrink:0}
+    .risk-panel-head{padding:14px 20px;background:var(--g1);border-bottom:1px solid var(--g2);font-size:13px;font-weight:800;color:var(--petrol)}
+    .risk-panel-body{padding:20px}
+    .risk-rules{list-style:none;display:flex;flex-direction:column;gap:8px}
+    .risk-rules li{font-size:13px;color:var(--g7);line-height:1.5;padding-left:14px;border-left:3px solid var(--yellow)}
+    .risk-tier-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+    .risk-tier-card{border:1px solid var(--g2);border-radius:var(--r-md);padding:14px;background:var(--white)}
+    .risk-tier-card.blocker{border-left:4px solid var(--red)}
+    .risk-tier-card.critical{border-left:4px solid #E65100}
+    .risk-tier-card.high{border-left:4px solid var(--amber)}
+    .risk-tier-card.medium{border-left:4px solid var(--g3)}
+    .risk-tier-card.low{border-left:4px solid var(--green)}
+    .risk-tier-name{font-size:12px;font-weight:800;color:var(--petrol);margin-bottom:4px}
+    .risk-tier-meta{font-size:11px;color:var(--g5);line-height:1.45}
+    .risk-table-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--g2);max-width:100%}
+    .risk-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+    .risk-table th{background:var(--petrol);color:#fff;padding:9px 10px;text-align:left;font-weight:700;font-size:10px;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+    .risk-table td{padding:8px 10px;border-bottom:1px solid var(--g2);vertical-align:top;color:var(--g8);line-height:1.45;word-wrap:break-word}
+    .risk-table th:nth-child(1),.risk-table td:nth-child(1){width:36px}
+    .risk-table th:nth-child(2),.risk-table td:nth-child(2){width:28%}
+    .risk-table th:nth-child(3),.risk-table td:nth-child(3){width:72px}
+    .risk-table th:nth-child(4),.risk-table td:nth-child(4){width:72px}
+    .risk-table th:nth-child(5),.risk-table td:nth-child(5){width:40px}
+    .risk-table th:nth-child(6),.risk-table td:nth-child(6){width:100px}
+    .risk-table th:nth-child(7),.risk-table td:nth-child(7){width:44px}
+    .risk-table tr:last-child td{border-bottom:none}
+    .risk-table tr:nth-child(odd) td{background:var(--g1)}
+    .risk-table tr.row-overdue td{background:rgba(209,67,67,.06)}
+    .risk-table tr.row-done td{opacity:.55}
+    .risk-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+    .risk-tag.blocker{background:rgba(209,67,67,.12);color:var(--red)}
+    .risk-tag.critical{background:rgba(230,81,0,.12);color:#E65100}
+    .risk-tag.high{background:var(--yellow-lt);color:var(--amber)}
+    .risk-tag.medium{background:var(--g1);color:var(--g5)}
+    .risk-tag.low{background:rgba(31,157,104,.1);color:var(--green)}
+    .risk-gate{font-size:10px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.3px}
+
+    /* Owner badges */
+    .task-owner{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+    .own-expat   {background:var(--teal-dim);color:var(--teal)}
+    .own-gm      {background:rgba(21,101,192,.1);color:var(--blue)}
+    .own-vialto  {background:rgba(100,0,200,.08);color:#7c3aed}
+    .own-k2      {background:rgba(46,125,50,.1);color:var(--green)}
+    .own-netexpat{background:var(--yellow-lt);color:var(--amber)}
+
+    /* Due-soon notification pill in action bar */
+    .cab-notify{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid rgba(180,83,9,.35);background:rgba(180,83,9,.06);font-size:11px;font-weight:700;color:var(--amber);white-space:nowrap;cursor:pointer}
+    .cab-notify:hover{background:rgba(180,83,9,.12)}
+
+    /* Follow-up question chips (below bot response, stacked vertically) */
+    .followup-wrap{display:flex;flex-direction:column;gap:6px;padding:4px 0 4px 40px;width:100%}
+    .followup-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--g3);margin-bottom:2px}
+    .followup-chip{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--white);border:1px solid var(--g2);border-radius:var(--r-md);font-size:14px;font-weight:500;color:var(--slate);cursor:pointer;transition:all .18s;font-family:inherit;text-align:left;line-height:1.45;max-width:520px;border-bottom:3px solid transparent}
+    .followup-chip::before{content:"↩";font-size:12px;color:var(--g5);flex-shrink:0}
+    .followup-chip:hover{border-color:var(--g3);border-bottom-color:var(--yellow);transform:translateX(2px);box-shadow:var(--shadow)}
+
+    /* Related actions card (inside chat) */
+    .related-actions{margin-top:8px;background:var(--g1);border:1.5px solid var(--g2);border-radius:10px;overflow:hidden}
+    .ra-header{padding:8px 12px;background:var(--white);border-bottom:1px solid var(--g2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--g5);display:flex;align-items:center;justify-content:space-between}
+    .ra-link{font-size:10px;color:var(--teal);font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+    .ra-link:hover{text-decoration:underline}
+    .ra-item{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--g2);font-size:12px}
+    .ra-item:last-child{border-bottom:none}
+    .ra-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .ra-dot.overdue{background:var(--red)}
+    .ra-dot.pending{background:var(--amber)}
+    .ra-text{flex:1;color:var(--g8)}
+    .ra-days{font-size:10px;font-weight:700;color:var(--g5);white-space:nowrap}
+    .ra-days.overdue{color:var(--red)}
+
+    /* Category colour map */
+    .cat-offer{background:rgba(15,61,76,.1);color:var(--teal)}
+    .cat-onboarding{background:rgba(21,101,192,.1);color:var(--blue)}
+    .cat-loa{background:var(--yellow-lt);color:var(--amber)}
+    .cat-immigration{background:rgba(229,57,53,.1);color:var(--red)}
+    .cat-tax{background:rgba(100,0,200,.08);color:#7c3aed}
+    .cat-destination{background:rgba(46,125,50,.1);color:var(--green)}
+    .cat-healthcare{background:rgba(2,132,199,.1);color:#0284c7}
+    .cat-departure{background:rgba(180,83,9,.1);color:var(--amber)}
+    .cat-travel{background:rgba(21,101,192,.12);color:var(--blue)}
+    .cat-payroll{background:rgba(15,61,76,.08);color:var(--teal)}
+
+    /* ── Users page ── */
+    .users-page{flex:1;overflow-y:auto;padding:28px 32px}
+    .users-page::-webkit-scrollbar{width:6px}
+    .users-page::-webkit-scrollbar-thumb{background:var(--g2);border-radius:4px}
+    .page-title{font-size:22px;font-weight:900;color:var(--teal);margin-bottom:4px}
+    .page-subtitle{font-size:13px;color:var(--g5);margin-bottom:24px}
+    .users-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+    .users-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px}
+    .user-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);padding:24px;border:1px solid var(--g2);border-bottom:4px solid var(--g2);cursor:pointer;transition:transform .18s,box-shadow .18s,border-color .18s}
+    .user-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(15,39,68,.08)}
+    .user-card.selected{border-bottom-color:var(--yellow)}
+    .user-card-profile{margin:16px 0;padding-top:12px;border-top:1px solid var(--g2)}
+    .user-card-profile .profile-section{margin-bottom:14px}
+    .user-card-profile .profile-section:last-child{margin-bottom:0}
+    .user-card-profile .profile-section-title{color:var(--g5)}
+    .user-card-profile .profile-row{border-bottom-color:var(--g1)}
+    .uc-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .uc-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-lt));color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .uc-name{font-size:14px;font-weight:700;color:var(--teal)}
+    .uc-type{font-size:11px;font-weight:700;color:var(--g5)}
+    .uc-rows{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+    .uc-row{display:flex;justify-content:space-between;font-size:12px}
+    .uc-row span:first-child{color:var(--g5)}
+    .uc-row span:last-child{font-weight:600;color:var(--g8)}
+    .uc-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .uc-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:var(--teal-dim);color:var(--teal);margin-bottom:6px}
+
+    /* ── Buttons (People Tech) ── */
+    .btn-primary{min-height:44px;padding:0 20px;background:var(--yellow);color:var(--g8);border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;transition:background .18s,box-shadow .18s;font-family:inherit;display:inline-flex;align-items:center;gap:8px}
+    .btn-primary:hover{background:var(--yellow-dk)}
+    .btn-primary:focus{box-shadow:var(--focus-yellow)}
+    .btn-sm{padding:0 16px;font-size:14px;min-height:36px;border-radius:10px}
+    .btn-outline{min-height:44px;padding:0 18px;background:var(--white);color:var(--slate);border:1px solid #CBD5E1;border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;transition:all .18s;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+    .btn-outline:hover{background:#F8FAFC;border-color:var(--g3)}
+    .btn-outline:focus{box-shadow:var(--focus-petrol)}
+    .btn-danger{min-height:36px;padding:0 14px;background:var(--red);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:background .18s;font-family:inherit}
+    .btn-danger:hover{background:#B73535}
+
+    /* ── Toast ── */
+    #toasts{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:9999}
+    .toast{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.15);animation:tslide .2s ease}
+    .toast.ok{background:var(--green)}.toast.err{background:var(--red)}.toast.info{background:var(--petrol)}
+    @keyframes tslide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:900px){
+      #pgChat{flex-direction:column}
+      .sidebar-toggle{display:flex}
+      .chat-sidebar{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--g2)}
+      .chat-sidebar.collapsed .sidebar-inner{display:none}
+      .profile-header{padding:16px}
+      .cs-chips{grid-template-columns:1fr}
+      .header{padding:0 16px}
+      .user-selector-label{display:none}
+      .users-grid{grid-template-columns:1fr}
+      .cab-summary{flex-wrap:wrap}
+      .cab-sum-card{max-width:none;min-width:calc(25% - 6px)}
+      .j-label{font-size:8px}
+      .j-flag{font-size:20px}
+    }
+    @media(max-width:600px){
+      .users-page,.config-page{padding:16px}
+      .actions-header{padding:14px 16px 0}
+      .actions-body{padding:14px 16px}
+      .actions-summary{gap:8px}
+      .risk-header{padding:14px 16px 12px}
+      .risk-body{padding:14px 16px 40px}
+      .risk-score-val{font-size:22px}
+      .chat-area{padding:12px}
+      .chat-suggestions{max-width:100%}
+      .j-label{display:none}
+      .j-dot{width:10px;height:10px}
+      .j-connector{margin-bottom:0}
+      .header-logo{font-size:13px}
+      .demo-badge{display:none}
+    }
+
+    /* ── Config Page ── */
+    .config-page{flex:1;overflow-y:auto;padding:28px 32px;max-width:720px}
+    .config-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);padding:28px;margin-bottom:24px;border:1px solid var(--g2);border-bottom:4px solid var(--yellow)}
+    .config-about{border-top-color:var(--g3)}
+    .config-section-title{font-size:14px;font-weight:800;color:var(--teal);margin-bottom:14px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.5px}
+    .config-desc{font-size:13px;color:var(--g6);line-height:1.6;margin-bottom:20px}
+    .config-desc code{background:var(--g1);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px}
+    .config-desc strong{color:var(--g8)}
+    .config-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;background:var(--g1);border-radius:10px;padding:16px}
+    .config-step{display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--g7)}
+    .config-step a{color:var(--teal);text-decoration:none;font-weight:600}
+    .config-step a:hover{text-decoration:underline}
+    .config-step code{background:var(--white);padding:2px 6px;border-radius:4px;font-size:12px;font-family:monospace;border:1px solid var(--g2)}
+    .config-step-num{width:28px;height:28px;border-radius:50%;background:var(--yellow);color:var(--g8);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+    .config-field-wrap{margin-bottom:18px}
+    .config-label{display:block;font-size:12px;font-weight:700;color:var(--g6);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+    .config-input-row{display:flex;gap:8px}
+    .config-input{flex:1;min-height:48px;padding:0 16px;border:1px solid var(--g3);border-radius:var(--r-md);font-size:15px;font-family:monospace;color:var(--g8);background:var(--white);transition:border-color .18s,box-shadow .18s;outline:none}
+    .config-input:focus{border-color:var(--petrol);box-shadow:var(--focus-petrol)}
+    .config-show-btn{min-height:44px;padding:0 16px;background:var(--g1);border:1px solid var(--g2);border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;color:var(--slate);font-family:inherit;transition:background .18s}
+    .config-show-btn:hover{background:var(--g3)}
+    .config-token-status{font-size:12px;margin-top:6px;min-height:18px;font-weight:600}
+    .config-token-status.ok{color:var(--green)}
+    .config-token-status.err{color:var(--red)}
+    .config-token-status.warn{color:var(--orange,#e67e22)}
+    .config-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+    .config-clear-btn{color:var(--red);border-color:var(--red)}
+    .config-clear-btn:hover{background:var(--red);color:#fff}
+    .config-saved-notice{display:flex;align-items:center;gap:8px;background:#e8f8f0;border:1.5px solid var(--green);border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--green)}
+    .config-go-chat{margin-left:auto;background:var(--green);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+    .config-meta-row{display:flex;gap:12px;font-size:12px;padding:6px 0;border-bottom:1px solid var(--g1)}
+    .config-meta-row:last-child{border-bottom:none}
+    .config-meta-key{color:var(--g5);font-weight:600;min-width:100px}
+    .config-meta-val{color:var(--g7)}
+
+    /* ── Overview Page ── */
+    .ov-scroll{flex:1;overflow-y:auto;background:var(--bg)}
+    .ov-scroll::-webkit-scrollbar{width:6px}
+    .ov-scroll::-webkit-scrollbar-thumb{background:var(--g2);border-radius:4px}
+    .ov-content{max-width:860px;margin:0 auto;padding:32px 32px 56px}
+    .ov-hero{margin-bottom:32px;padding:32px;background:var(--petrol);border-radius:20px;color:#fff}
+    .ov-h1{font-size:34px;font-weight:800;color:#fff;letter-spacing:-.5px;margin-bottom:12px;line-height:1.1}
+    .ov-h2{font-size:20px;font-weight:700;color:var(--petrol);margin-bottom:8px}
+    .ov-h3{font-size:13px;font-weight:700;color:var(--petrol);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+    .ov-lead{font-size:16px;color:rgba(255,255,255,.85);line-height:1.6;max-width:640px}
+    .ov-text{font-size:13px;color:var(--g5);line-height:1.7}
+    .ov-text.semibold{font-weight:600;color:var(--g8)}
+    .ov-divider{border:none;border-top:1px solid var(--g2);margin:28px 0}
+    .ov-row{display:flex;gap:16px;align-items:center}
+    .ov-pill{display:inline-flex;align-items:center;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:.3px;text-transform:uppercase}
+    .ov-pill.info{background:rgba(21,101,192,.12);color:#1565c0}
+    .ov-pill.neutral{background:var(--g1);color:var(--g5);border:1px solid var(--g2)}
+    /* KPI stats */
+    .ov-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:4px}
+    .ov-stat{background:var(--white);border-radius:var(--r);padding:20px 16px;box-shadow:var(--shadow);border:1px solid var(--g2);border-bottom:4px solid var(--yellow);text-align:center}
+    .ov-stat-val{font-size:28px;font-weight:900;line-height:1;margin-bottom:4px}
+    .ov-stat-val.info{color:#1565c0}
+    .ov-stat-val.success{color:var(--green)}
+    .ov-stat-val.neutral{color:var(--teal)}
+    .ov-stat-lbl{font-size:11px;color:var(--g5);font-weight:600}
+    /* Section container */
+    .ov-section{margin-bottom:28px}
+    /* Grid layouts */
+    .ov-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .ov-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .ov-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    /* Callout blocks */
+    .ov-callout{border-radius:10px;padding:14px 16px;border:1px solid transparent}
+    .ov-callout-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+    .ov-callout .ov-text{font-size:12px}
+    .ov-callout.info{background:rgba(21,101,192,.06);border-color:rgba(21,101,192,.18)}
+    .ov-callout.info .ov-callout-title{color:#1565c0}
+    .ov-callout.success{background:rgba(46,125,50,.06);border-color:rgba(46,125,50,.18)}
+    .ov-callout.success .ov-callout-title{color:var(--green)}
+    .ov-callout.warning{background:rgba(180,83,9,.06);border-color:rgba(180,83,9,.18)}
+    .ov-callout.warning .ov-callout-title{color:var(--amber)}
+    .ov-callout.neutral{background:var(--g1);border-color:var(--g2)}
+    .ov-callout.neutral .ov-callout-title{color:var(--g5)}
+    .ov-callout.flow{background:linear-gradient(135deg,rgba(15,61,76,.05),rgba(45,122,94,.06));border-color:rgba(15,61,76,.15)}
+    .ov-callout.flow .ov-callout-title{color:var(--teal)}
+    /* Card blocks */
+    .ov-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--g2);margin-bottom:14px;overflow:hidden}
+    .ov-card-header{padding:14px 20px;background:var(--g1);border-bottom:1px solid var(--g2);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .ov-card-title{font-size:13px;font-weight:800;color:var(--teal)}
+    .ov-card-body{padding:20px}
+    /* Table */
+    .ov-table-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--g2)}
+    .ov-table{width:100%;border-collapse:collapse;font-size:12px}
+    .ov-table th{background:var(--teal);color:#fff;padding:9px 14px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.3px}
+    .ov-table td{padding:8px 14px;border-bottom:1px solid var(--g2);vertical-align:top;color:var(--g8);line-height:1.5}
+    .ov-table tr:last-child td{border-bottom:none}
+    .ov-table tr:nth-child(odd) td{background:var(--g1)}
+    .ov-table tr:nth-child(even) td{background:var(--white)}
+    .ov-table tr.row-success td{background:rgba(46,125,50,.06)}
+    .ov-table tr.row-info td{background:rgba(21,101,192,.05)}
+    /* Footer */
+    .ov-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;font-size:11px;color:var(--g3)}
+    @media(max-width:700px){.ov-kpi-grid{grid-template-columns:1fr 1fr}.ov-grid2,.ov-grid3,.ov-grid4{grid-template-columns:1fr}.ov-content{padding:20px 16px 40px}}
+
+    /* ── Demo presentation overlay ── */
+    .demo-overlay{position:fixed;inset:0;z-index:99990;pointer-events:none}
+    .demo-overlay.hidden{display:none}
+    .demo-backdrop{position:absolute;inset:0;background:rgba(15,39,68,.45);pointer-events:auto}
+    .demo-spotlight{position:fixed;border:3px solid var(--yellow);border-radius:12px;box-shadow:0 0 0 9999px rgba(15,39,68,.52);transition:all .45s ease;pointer-events:none;z-index:1}
+    .demo-card{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);width:min(520px,92vw);background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 20px 50px rgba(0,0,0,.22);border-bottom:5px solid var(--yellow);z-index:2;pointer-events:auto;animation:modalIn .3s ease}
+    .demo-badge{font-size:10px;font-weight:800;color:var(--teal);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+    .demo-card-title{font-size:18px;font-weight:800;color:var(--teal);margin-bottom:8px}
+    .demo-card-body{font-size:14px;color:var(--g5);line-height:1.55}
+    .demo-card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:12px}
+    .demo-stop-btn{border:1.5px solid var(--g2);background:#fff;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;color:var(--g8)}
+    .demo-stop-btn:hover{background:var(--g1)}
+    .demo-progress{font-size:11px;color:var(--g5);font-weight:600}
+    .header-demo-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-radius:8px;background:var(--yellow);color:#111;font-size:12px;font-weight:800;cursor:pointer;letter-spacing:.3px}
+    .header-demo-btn:hover{background:var(--yellow-dk)}
+    .header-demo-btn svg{width:14px;height:14px}
+    .chat-mode-badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(21,101,192,.1);color:var(--blue);letter-spacing:.3px}
+
+    /* ── Profile wizard modal ── */
+    .modal-overlay{position:fixed;inset:0;z-index:99980;background:rgba(15,39,68,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.hidden{display:none}
+    .modal-box{background:#fff;border-radius:14px;width:min(560px,96vw);max-height:90vh;overflow:auto;box-shadow:0 24px 64px rgba(0,0,0,.18);border-bottom:5px solid var(--yellow)}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--g2)}
+    .modal-title{font-size:16px;font-weight:800;color:var(--teal)}
+    .modal-close{border:none;background:transparent;font-size:24px;line-height:1;cursor:pointer;color:var(--g5)}
+    .modal-body{padding:20px}
+    .modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:16px 20px;border-top:1px solid var(--g2)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-group{display:flex;flex-direction:column;gap:4px}
+    .form-group label{font-size:11px;font-weight:700;color:var(--g5);text-transform:uppercase;letter-spacing:.4px}
+    .form-control{border:1.5px solid var(--g2);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none}
+    .form-control:focus{border-color:var(--teal)}
+    .pw-toggles{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;font-size:13px}
+    .pw-toggles label{display:flex;align-items:center;gap:6px;color:var(--g8)}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sb-logo">EC</div>
+    <div class="v3-badge">V3.0</div>
+    <button class="nav-item active" id="navChat" onclick="showPage('chat')" title="Concierge Chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Chat
+    </button>
+    <button class="nav-item" id="navActions" onclick="showPage('actions')" title="Action Log">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span id="navActionsBadge" class="nav-badge" style="display:none">0</span>Actions
+    </button>
+    <button class="nav-item" id="navRisk" onclick="showPage('risk')" title="Risk Matrix">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Risk
+    </button>
+    <button class="nav-item" id="navUsers" onclick="showPage('users')" title="User Management">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Users
+    </button>
+    <button class="nav-item" id="navOverview" onclick="showPage('overview')" title="Product Overview">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>About
+    </button>
+    <div class="sb-spacer"></div>
+    <button class="nav-item" id="navConfig" onclick="showPage('config')" title="Configuration">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Config
+    </button>
+  </nav>
+
+  <div class="page">
+    <header class="header">
+      <div class="header-logo">
+        <div class="header-bar"></div>
+        EXPAT CONCIERGE
+        <span class="header-v3">V3.0</span>
+        <span class="demo-badge">DEMO · Aug 2026</span>
+      </div>
+      <div class="header-spacer"></div>
+      <button type="button" class="header-demo-btn" onclick="startDemoPresentation()" title="Run automated demo tour">
+        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Demo
+      </button>
+      <span id="chatModeBadge" class="chat-mode-badge" style="display:none"></span>
+      <div class="user-selector-wrap">
+        <span class="user-selector-label">Active user:</span>
+        <select class="user-selector" id="userSelector" onchange="switchUser(this.value)">
+          <option value="u_lta_family">John Doe (LTA · Brazil → United States)</option>
+          <option value="u_sta_single">Ana Ferreira (STA · Mexico → Germany)</option>
+          <option value="u_ia_complex">David Park (IA · South Korea → United Kingdom)</option>
+          <option value="u_commuter">Maria Santos (Commuter · Portugal → Spain)</option>
+        </select>
+      </div>
+      <div class="user-av" id="headerAv" title="Current user">?</div>
+    </header>
+
+    <!-- ═══ CHAT PAGE ═══ -->
+    <div class="pg active" id="pgChat">
+      <aside class="chat-sidebar" id="chatSidebar">
+        <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-expanded="true" aria-controls="sidebarInner">
+          <span class="sidebar-toggle-label">Employee menu</span>
+          <svg class="sidebar-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="sidebar-inner" id="sidebarInner">
+          <div class="sidebar-card sidebar-card--employee">
+            <div class="sidebar-card-label">Employee Info</div>
+            <div class="profile-header profile-header--compact">
+              <div class="profile-av" id="profileAv">?</div>
+              <div class="profile-name" id="profileName">Select a user</div>
+              <div class="profile-job" id="profileJob">—</div>
+              <div class="profile-assignment" id="profileAssignment">—</div>
+            </div>
+          </div>
+          <nav class="sidebar-nav" aria-label="Quick navigation">
+            <button type="button" class="sidebar-nav-card" onclick="handleSidebarNav('contacts')">
+              <span class="snav-icon">📞</span>
+              <span class="snav-title">Contacts</span>
+            </button>
+            <button type="button" class="sidebar-nav-card" onclick="handleSidebarNav('actions')">
+              <span class="snav-icon">✅</span>
+              <span class="snav-title">MY ACTIONS</span>
+            </button>
+            <button type="button" class="sidebar-nav-card" onclick="handleSidebarNav('documents')">
+              <span class="snav-icon">📄</span>
+              <span class="snav-title">DOCUMENTS</span>
+            </button>
+            <button type="button" class="sidebar-nav-card" onclick="handleSidebarNav('faq')">
+              <span class="snav-icon">💡</span>
+              <span class="snav-title">FAQ</span>
+            </button>
+          </nav>
+        </div>
+      </aside>
+
+      <div class="chat-main">
+        <!-- Action Stats Bar -->
+        <div class="chat-action-bar" id="chatActionBar">
+          <span class="cab-label">Action Log</span>
+          <div class="cab-summary">
+            <button type="button" class="cab-sum-card total" onclick="openActionLog('all')"><div class="cab-sum-num" id="cab-total">0</div><div class="cab-sum-lbl">Total</div></button>
+            <button type="button" class="cab-sum-card done" onclick="openActionLog('done')"><div class="cab-sum-num" id="cab-done">0</div><div class="cab-sum-lbl">Completed</div></button>
+            <button type="button" class="cab-sum-card pend" onclick="openActionLog('pending')"><div class="cab-sum-num" id="cab-pend">0</div><div class="cab-sum-lbl">Pending</div></button>
+            <button type="button" class="cab-sum-card risk-low" id="cabRiskBtn" onclick="showPage('risk')"><div class="cab-sum-num" id="cab-risk-level">—</div><div class="cab-sum-lbl">Risk</div></button>
+          </div>
+          <div class="cab-notify" id="cabDueSoon" style="display:none"></div>
+        </div>
+        <div class="chat-area">
+          <div class="chat-topbar">
+            <div class="chat-topbar-icon" aria-hidden="true">
+              <img class="journey-map-icon" src="assets/journey-flight-map.svg" alt="" width="58" height="50"/>
+            </div>
+            <div class="chat-topbar-main">
+              <h3>MY JOURNEY</h3>
+              <div class="journey-stepper" id="journeyStepper" aria-label="Assignment journey"></div>
+            </div>
+            <div class="chat-meta-badges" id="chatMetaBadges"></div>
+          </div>
+          <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+              <div class="chat-empty" id="chatEmpty">
+                <h4>Welcome to Expat Concierge V3</h4>
+                <div class="chat-suggestions" id="chatSuggestions">
+                  <div class="cs-label">Start here</div>
+                  <div class="cs-chips" id="chatSuggestionChips"></div>
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-row">
+              <textarea id="chatInput" class="chat-input" rows="1" placeholder="Ask about your relocation… e.g. What housing support am I entitled to?"></textarea>
+              <button class="send-btn" id="sendBtn" onclick="send()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ACTIONS PAGE ═══ -->
+    <div class="pg" id="pgActions">
+      <div class="actions-page">
+        <div class="actions-header">
+          <div class="actions-header-top">
+            <div class="actions-title-group">
+              <div class="actions-title" id="actionsTitle">Action Log</div>
+              <div class="actions-subtitle" id="actionsSubtitle">Your assignment tasks and deadlines</div>
+            </div>
+            <div class="actions-move-date" id="actionsMoveDate"></div>
+          </div>
+          <div class="actions-summary" id="actionsSummary">
+            <div class="sum-card total"><div class="sum-num" id="sum-total">0</div><div class="sum-lbl">Total</div></div>
+            <div class="sum-card done"> <div class="sum-num" id="sum-done">0</div>  <div class="sum-lbl">Completed</div></div>
+            <div class="sum-card pend"> <div class="sum-num" id="sum-pend">0</div>  <div class="sum-lbl">Pending</div></div>
+            <div class="sum-card overdue"><div class="sum-num" id="sum-over">0</div><div class="sum-lbl">Overdue</div></div>
+          </div>
+          <div class="actions-filters" id="actionsFilters">
+            <button class="filter-pill active" data-filter="all" onclick="setFilter('all',this)">All</button>
+            <button class="filter-pill status-overdue" data-filter="overdue" onclick="setFilter('overdue',this)">⚠ Overdue</button>
+            <button class="filter-pill status-pending" data-filter="pending" onclick="setFilter('pending',this)">Pending</button>
+            <button class="filter-pill status-done" data-filter="done" onclick="setFilter('done',this)">Completed</button>
+            <span style="width:1px;background:var(--g2);margin:0 4px;align-self:stretch"></span>
+            <button class="filter-pill" data-filter="cat:Immigration" onclick="setFilter('cat:Immigration',this)">Immigration</button>
+            <button class="filter-pill" data-filter="cat:Destination Services" onclick="setFilter('cat:Destination Services',this)">Destination</button>
+            <button class="filter-pill" data-filter="cat:Tax" onclick="setFilter('cat:Tax',this)">Tax</button>
+            <button class="filter-pill" data-filter="cat:Healthcare" onclick="setFilter('cat:Healthcare',this)">Healthcare</button>
+            <span style="width:1px;background:var(--g2);margin:0 4px;align-self:stretch"></span>
+            <button class="filter-pill" data-filter="own:Expat" onclick="setFilter('own:Expat',this)">👤 You</button>
+            <button class="filter-pill" data-filter="own:Vialto" onclick="setFilter('own:Vialto',this)">Vialto</button>
+            <button class="filter-pill" data-filter="own:K2" onclick="setFilter('own:K2',this)">K2</button>
+            <button class="filter-pill" data-filter="own:GM" onclick="setFilter('own:GM',this)">GM Team</button>
+          </div>
+        </div>
+        <div class="actions-body" id="actionsList"></div>
+      </div>
+    </div>
+
+    <!-- ═══ RISK MATRIX PAGE ═══ -->
+    <div class="pg" id="pgRisk">
+      <div class="risk-page">
+        <div class="risk-header">
+          <div class="risk-header-top">
+            <div>
+              <div class="risk-title" id="riskPageTitle">Assignment Risk Matrix</div>
+              <div class="risk-subtitle" id="riskPageSubtitle">Weighted scoring across all 34 action-log tasks — edit tiers in <code>RISK_MATRIX</code> in source for future revisions.</div>
+            </div>
+            <div class="risk-score-card low" id="riskPageScoreCard">
+              <div class="risk-score-val" id="riskPageScoreVal">—</div>
+              <div class="risk-score-lbl" id="riskPageScoreLbl">Risk level</div>
+            </div>
+          </div>
+        </div>
+        <div class="risk-body" id="riskPageContent"></div>
+      </div>
+    </div>
+
+    <!-- ═══ USERS PAGE ═══ -->
+    <div class="pg" id="pgUsers">
+      <div class="users-page">
+        <div class="page-title">Users</div>
+        <div class="page-subtitle">Full employee profiles — click Simulate to open chat as that user.</div>
+        <div class="users-toolbar">
+          <button class="btn-primary" onclick="openProfileWizard()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New User
+          </button>
+          <button class="btn-outline" onclick="renderUsersGrid()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+        <div class="users-grid" id="usersGrid"></div>
+      </div>
+    </div>
+
+    <!-- ═══ CONFIG PAGE ═══ -->
+    <div class="pg" id="pgConfig">
+      <div class="config-page">
+        <div class="page-title">Settings</div>
+        <div class="page-subtitle">Manage the access code for the AI chat feature.</div>
+
+        <div class="config-card">
+          <div class="config-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Access Code
+          </div>
+          <p class="config-desc">
+            <strong>GitHub Models was retired (July 2026).</strong> Live AI chat requires <strong>Azure OpenAI</strong> on the server (<code>AZURE_OPENAI_*</code> in <code>.env</code>). Testers use <code>/askV3</code> via this app — no browser token needed when Azure is configured.
+          </p>
+          <p class="config-desc">
+            <strong>Corporate network / offline ZIP:</strong> built-in policy answers work without any API. Open via <code>http://localhost:3000/v3</code> or the tester ZIP.
+          </p>
+          <div class="config-actions" style="margin-top:12px">
+            <button class="btn-outline" onclick="setChatMode('offline');toast('Offline policy demo enabled','ok')">Use offline demo only</button>
+            <button class="btn-outline" onclick="setChatMode('auto');toast('Auto mode — server proxy then offline fallback','ok')">Auto (recommended)</button>
+          </div>
+
+          <div class="config-field-wrap" style="margin-top:20px">
+            <label class="config-label">Access Code</label>
+            <div class="config-input-row">
+              <input type="password" id="cfgTokenInput" class="config-input" placeholder="Paste access code here…" autocomplete="off" />
+              <button class="config-show-btn" id="cfgShowBtn" onclick="toggleTokenVisibility()">Show</button>
+            </div>
+            <div class="config-token-status" id="cfgTokenStatus"></div>
+          </div>
+
+          <div class="config-actions">
+            <button class="btn-primary" onclick="saveToken()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save
+            </button>
+            <button class="btn-outline" id="cfgTestBtn" onclick="testToken()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Test Connection
+            </button>
+            <button class="btn-outline config-clear-btn" onclick="clearToken()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+              Clear
+            </button>
+          </div>
+
+          <div class="config-saved-notice" id="cfgSavedNotice" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Access code saved! You can now use the chat.
+            <button class="config-go-chat" onclick="showPage('chat')">Go to Chat →</button>
+          </div>
+        </div>
+
+        <div class="config-card config-about">
+          <div class="config-section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            About this Demo
+          </div>
+          <p class="config-desc">
+            <strong>Expat Concierge V3.0</strong> — standalone HTML demo.<br>
+            Multi-agent architecture simulation with policy-scoped responses, action log, and AI-powered chat.<br>
+            No backend required — all data is embedded.
+          </p>
+          <div class="config-meta-row">
+            <span class="config-meta-key">Storage</span><span class="config-meta-val">Access code saved in your browser only (never shared)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ OVERVIEW PAGE ═══ -->
+    <div class="pg" id="pgOverview">
+      <div class="ov-scroll">
+        <div class="ov-content">
+
+          <!-- ── HERO ── -->
+          <div class="ov-hero">
+            <div class="ov-row" style="margin-bottom:10px;flex-wrap:wrap;gap:8px">
+              <h1 class="ov-h1">Expat Concierge</h1>
+              <span class="ov-pill info">V3.0</span>
+              <span class="ov-pill neutral">Executive Overview</span>
+            </div>
+            <p class="ov-lead">An AI-powered concierge that guides employees through every step of their global mobility assignment. Policy-scoped, profile-aware, and always available — from offer acceptance to repatriation.</p>
+          </div>
+
+          <!-- ── KPI STRIP ── -->
+          <div class="ov-kpi-grid">
+            <div class="ov-stat"><div class="ov-stat-val info">10</div><div class="ov-stat-lbl">Agents &amp; services</div></div>
+            <div class="ov-stat"><div class="ov-stat-val neutral">4</div><div class="ov-stat-lbl">Assignment types covered</div></div>
+            <div class="ov-stat"><div class="ov-stat-val success">34</div><div class="ov-stat-lbl">Action items per expat</div></div>
+            <div class="ov-stat"><div class="ov-stat-val neutral">24/7</div><div class="ov-stat-lbl">AI availability</div></div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── ARCHITECTURE ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2">Multi-Agent Architecture</h2>
+            <p class="ov-text" style="margin-bottom:14px">Every user question passes through a layered pipeline of specialised agents and services before reaching GPT-4o. No answer is generated without policy validation, access control, confidence scoring, and decision framing.</p>
+
+            <div class="ov-callout flow" style="margin-bottom:16px">
+              <div class="ov-callout-title">Request flow</div>
+              <p class="ov-text">Access Control check → Policy Agent Router → Specialist Agent → Decision Engine → Confidence Engine → Chat Agent (context build) → GPT-4o → streamed response</p>
+            </div>
+
+            <h3 class="ov-h3" style="margin-top:18px">Orchestration</h3>
+            <div class="ov-grid2" style="margin-bottom:16px">
+              <div class="ov-callout info">
+                <div class="ov-callout-title">Policy Agent Router</div>
+                <p class="ov-text">Single entry point for every question. Reads the user's assignment type and routes to the correct specialist. Enforces type safety — a mismatched agent is caught and the Generic fallback is activated automatically.</p>
+              </div>
+              <div class="ov-callout info">
+                <div class="ov-callout-title">Chat Agent</div>
+                <p class="ov-text">Validates specialist output before trusting it, then assembles the full LLM context block — injecting guidance, decision type, confidence score, risk level, missing information, and escalation targets into the GPT-4o prompt.</p>
+              </div>
+            </div>
+
+            <h3 class="ov-h3">Specialist Agents</h3>
+            <div class="ov-grid2" style="margin-bottom:16px">
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">LTA Specialist</div>
+                <p class="ov-text">Long-Term Assignment advisor. Handles the most complex assignment type with escalation logic for tax, visa, payroll, and exceptions. Raises profile-specific flags for pending visa, school search for children, and pet relocation.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">STA Specialist</div>
+                <p class="ov-text">Short-Term Assignment advisor. Aware that STA extensions require explicit approval — flags these automatically. Covers temporary living, per diems, settling-in services, and split payroll scenarios.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">IA Specialist</div>
+                <p class="ov-text">International Appointment advisor. Handles the most legally sensitive assignment type — local entity implications, employment contract scope, compensation package governance, and right-to-work risks.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">Commuter Specialist</div>
+                <p class="ov-text">Commuter assignment advisor. The only agent that handles cross-border social security, dual-jurisdiction tax, and border crossing authorizations. Flags travel frequency and accommodation patterns.</p>
+              </div>
+              <div class="ov-callout warning" style="grid-column:1/-1">
+                <div class="ov-callout-title">Generic Fallback</div>
+                <p class="ov-text">Last resort when no specialist can safely handle the request. Always escalates to the GM Team, flags reduced confidence, and provides general market practice guidance only — never makes policy-specific claims without evidence.</p>
+              </div>
+            </div>
+
+            <h3 class="ov-h3">Support Services</h3>
+            <div class="ov-grid3" style="margin-bottom:16px">
+              <div class="ov-callout neutral">
+                <div class="ov-callout-title">Decision Engine</div>
+                <p class="ov-text">Classifies every response into one of five states: Clear, Conditional, Insufficient, Needs Review, or Out of Scope. Drives how the Chat Agent frames the final answer.</p>
+              </div>
+              <div class="ov-callout neutral">
+                <div class="ov-callout-title">Confidence Engine</div>
+                <p class="ov-text">Scores confidence (high / medium / low) and risk level based on evidence volume, specialist quality, and profile flags. Starts at 100% and deducts per signal — both scores injected into the LLM prompt.</p>
+              </div>
+              <div class="ov-callout neutral">
+                <div class="ov-callout-title">Policy Access Control</div>
+                <p class="ov-text">Hard boundary enforcement. Blocks any request that references a policy the user is not authorized for. An LTA expat can never access STA, IA, or Commuter policy content — regardless of how the question is phrased.</p>
+              </div>
+            </div>
+
+            <h3 class="ov-h3">Automatic Escalation</h3>
+            <p class="ov-text" style="margin-bottom:10px">When a question touches a sensitive topic — tax, immigration, exceptions, or social security — the system automatically flags it for the right specialist team. This happens before the AI answers, so the expat always receives both the AI guidance and a clear recommendation to confirm with the appropriate team.</p>
+            <div class="ov-callout warning">
+              <div class="ov-callout-title">Intent</div>
+              <p class="ov-text">The goal is not to block the conversation — it is to protect the expat. The AI still provides useful, policy-grounded guidance while making clear that certain decisions require human confirmation. No sensitive topic is answered in isolation.</p>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── THE CHALLENGE ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:14px">The Challenge</h2>
+            <div class="ov-grid2" style="margin-bottom:14px">
+              <div>
+                <p class="ov-text semibold" style="margin-bottom:6px">For expats</p>
+                <p class="ov-text">Global assignments are complex. Expats face dozens of simultaneous processes — visa applications, housing searches, school enrollment, tax registration — with little centralised guidance and no single source of truth. Stress and errors are common.</p>
+              </div>
+              <div>
+                <p class="ov-text semibold" style="margin-bottom:6px">For PBP and GM teams</p>
+                <p class="ov-text">Every assignment generates hundreds of repetitive questions across email, Teams, and calls. Deadlines are missed when task ownership is unclear. Policy guidance is inconsistent, creating compliance risk and eroding expat trust.</p>
+              </div>
+            </div>
+            <div class="ov-callout info">
+              <div class="ov-callout-title">The opportunity</div>
+              <p class="ov-text">A policy-aware AI concierge eliminates repetitive Q&amp;A, enforces assignment boundaries, tracks every action item with clear ownership, and gives expats the guided experience they need to succeed — without adding headcount.</p>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── CORE CAPABILITIES ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:14px">Core Capabilities</h2>
+            <div class="ov-grid2">
+              <div class="ov-callout info">
+                <div class="ov-callout-title">AI-Powered Chat</div>
+                <p class="ov-text">Instant answers to any relocation question, grounded in company policy and scoped to the expat's assignment type. Responses are personalised to the expat's profile — family situation, visa status, housing needs, tax concerns.</p>
+              </div>
+              <div class="ov-callout success">
+                <div class="ov-callout-title">Action Log &amp; Task Tracking</div>
+                <p class="ov-text">34 pre-loaded tasks per assignment with deadlines, owners (Expat, GM Team, Vialto, K2, Net Expat), and completion status. Nothing falls through the cracks. Overdue items are highlighted with alerts.</p>
+              </div>
+              <div class="ov-callout info">
+                <div class="ov-callout-title">Multi-Profile Management</div>
+                <p class="ov-text">Any number of expat profiles managed simultaneously. PBP admins can simulate any user, view their full action log, and switch context in one click. One platform for all active assignments.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">Proactive Alerts</div>
+                <p class="ov-text">Tasks due within 7 days surface automatically in the chat header. Overdue tasks are injected into the AI context so every answer is action-aware — not just policy-aware.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">Policy Enforcement</div>
+                <p class="ov-text">Assignment boundaries are strictly enforced. An LTA expat cannot receive STA benefit guidance. Every response is explainable and auditable, reducing legal and compliance exposure.</p>
+              </div>
+              <div class="ov-callout neutral">
+                <div class="ov-callout-title">Suggested Questions</div>
+                <p class="ov-text">Chat opens with personalised question chips based on the expat's exact profile — visa status, housing, schooling, tax equalization. Action log chips surface overdue and upcoming tasks as conversational prompts.</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── ASSIGNMENT JOURNEY ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:6px">The Assignment Journey</h2>
+            <p class="ov-text" style="margin-bottom:14px">Five stages from first login to PBP oversight — each step building on the last to guide the expat through the full assignment lifecycle.</p>
+            <div class="ov-grid2">
+              <div class="ov-callout info">
+                <div class="ov-callout-title">01 — Profile Loaded</div>
+                <p class="ov-text">The system reads the expat's assignment type, stage (pre / during / post), family situation, host and home countries, department, and expected move date. Every subsequent interaction is personalised to this context.</p>
+              </div>
+              <div class="ov-callout info">
+                <div class="ov-callout-title">02 — Personalised Welcome</div>
+                <p class="ov-text">The chat opens with suggested question chips tailored to the expat's exact situation — school search for children, visa status for immigration-in-progress assignments, housing for those needing temporary accommodation.</p>
+              </div>
+              <div class="ov-callout success">
+                <div class="ov-callout-title">03 — Instant AI Answers</div>
+                <p class="ov-text">GPT-4o responds with policy-scoped guidance specific to the assignment type. Answers reference the expat's profile and are bounded by policy. No out-of-scope guidance is given — ever.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">04 — Actions Tracked</div>
+                <p class="ov-text">Every task is visible with its owner, deadline, and completion status. Overdue items are flagged prominently and injected into the AI context so chat responses are action-aware. The 'due this week' bar surfaces urgency at a glance.</p>
+              </div>
+              <div class="ov-callout neutral" style="grid-column:1/-1">
+                <div class="ov-callout-title">05 — PBP Oversight</div>
+                <p class="ov-text">The GM and PBP team sees all expat profiles, action completion stats, and overdue counts from a single view. They can simulate any expat's experience in one click to understand exactly what guidance that person is receiving.</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── BUSINESS VALUE ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:14px">Business Value</h2>
+            <div class="ov-grid2">
+              <div class="ov-callout info">
+                <div class="ov-callout-title">Reduce PBP Workload</div>
+                <p class="ov-text">Routine relocation Q&amp;A is handled autonomously — no emails, no Teams messages, no calls. PBP time is redirected from answering FAQs to strategic mobility decisions.</p>
+              </div>
+              <div class="ov-callout success">
+                <div class="ov-callout-title">Improve Expat Experience</div>
+                <p class="ov-text">Expats get personalised, policy-accurate guidance from day one of offer acceptance through repatriation. Less anxiety, fewer errors, and a measurably higher assignment success rate.</p>
+              </div>
+              <div class="ov-callout warning">
+                <div class="ov-callout-title">Ensure Compliance</div>
+                <p class="ov-text">Every response is bounded by the expat's assignment policy. No LTA expat can receive STA benefit guidance. Responses are explainable and auditable, reducing legal and compliance exposure.</p>
+              </div>
+              <div class="ov-callout neutral">
+                <div class="ov-callout-title">Full Visibility</div>
+                <p class="ov-text">Real-time action tracking with clear ownership and deadlines. Nothing falls through the cracks. PBP has dashboard-level oversight across all active assignments.</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── BUSINESS VALIDATION ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:6px">Current Phase: Business Validation</h2>
+            <p class="ov-text" style="margin-bottom:16px">We are in active validation with the business team. The goal is to test real expat scenarios, collect feedback, and use that input to enrich agents, expand the knowledge base, and improve the overall expat experience — before moving to full production rollout.</p>
+            <div class="ov-grid2" style="margin-bottom:16px">
+              <div class="ov-callout info">
+                <div class="ov-callout-title">What we are validating</div>
+                <p class="ov-text" style="margin-bottom:5px">Does the AI answer the questions expats actually ask — in the right language, with the right level of detail?</p>
+                <p class="ov-text" style="margin-bottom:5px">Are the policy boundaries correctly enforced per assignment type?</p>
+                <p class="ov-text" style="margin-bottom:5px">Do the action items, deadlines, and owners reflect real assignment workflows?</p>
+                <p class="ov-text">Where does the AI fall short — missing FAQs, weak answers, wrong escalations?</p>
+              </div>
+              <div class="ov-callout success">
+                <div class="ov-callout-title">How validation works</div>
+                <p class="ov-text" style="margin-bottom:5px">Business team receives the standalone HTML demo — no install, no setup, just an access code.</p>
+                <p class="ov-text" style="margin-bottom:5px">They simulate real expat profiles (LTA, STA, IA, Commuter) and test live AI chat responses.</p>
+                <p class="ov-text" style="margin-bottom:5px">Feedback is collected per scenario: answer quality, missing coverage, wrong scope, escalation accuracy.</p>
+                <p class="ov-text">Each feedback cycle directly informs the next iteration of agents, prompts, and FAQ coverage.</p>
+              </div>
+            </div>
+            <h3 class="ov-h3">Improvement Pipeline</h3>
+            <div class="ov-table-wrap" style="margin-bottom:16px">
+              <table class="ov-table">
+                <thead><tr><th>Area</th><th>Current state</th><th>Next iteration</th></tr></thead>
+                <tbody>
+                  <tr><td>Agent knowledge</td><td>General policy logic per assignment type</td><td>Enriched with company-specific policy documents and real case examples</td></tr>
+                  <tr><td>FAQ coverage</td><td>Profile-triggered suggested questions (6–8 per user)</td><td>Expanded library from business feedback — top 30+ real expat questions per type</td></tr>
+                  <tr><td>Chat quality</td><td>GPT-4o with policy context + profile awareness</td><td>Refined prompts, better handling of edge cases, improved escalation language</td></tr>
+                  <tr><td>Action log tasks</td><td>34 standard tasks mapped to assignment timeline</td><td>Validated against real GM workflows, adjusted deadlines and owner assignments</td></tr>
+                  <tr><td>Escalation accuracy</td><td>Pattern-based topic detection</td><td>Calibrated from real feedback on false positives and missed escalations</td></tr>
+                  <tr><td>Expat experience</td><td>Personalised welcome + suggested questions</td><td>Richer onboarding flow, proactive guidance at each assignment stage</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="ov-callout neutral">
+              <div class="ov-callout-title">The feedback loop</div>
+              <p class="ov-text">Business validation using the HTML demo → Collect gaps and quality issues → Enrich agents, prompts, and FAQs → Re-validate → Production rollout</p>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── NEXT STEPS ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:14px">Recommended Next Steps</h2>
+            <div class="ov-table-wrap">
+              <table class="ov-table">
+                <thead><tr><th style="width:36px;text-align:center">#</th><th>Step</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td style="text-align:center;font-weight:800">1</td><td>Live demo walkthrough</td><td>Schedule 30-minute demo with the GM and PBP leadership team</td></tr>
+                  <tr><td style="text-align:center;font-weight:800">2</td><td>Policy mapping</td><td>Identify and upload the relevant company mobility policy documents</td></tr>
+                  <tr><td style="text-align:center;font-weight:800">3</td><td>Profile definition</td><td>Define assignment types, benefit scopes, and expat profile fields</td></tr>
+                  <tr><td style="text-align:center;font-weight:800">4</td><td>Pilot launch</td><td>Go live with 2–3 active expat assignments for real-world validation</td></tr>
+                  <tr><td style="text-align:center;font-weight:800">5</td><td>Full rollout</td><td>Scale to all active assignments and enable the PBP admin dashboard</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <hr class="ov-divider"/>
+
+          <!-- ── TIMELINE ── -->
+          <div class="ov-section">
+            <h2 class="ov-h2" style="margin-bottom:6px">Proposed Timeline</h2>
+            <p class="ov-text" style="margin-bottom:18px">Four phases from current HTML validation through to production delivery via traditional software development — fully independent of AI-assisted tooling after approval.</p>
+
+            <div class="ov-card">
+              <div class="ov-card-header">
+                <span class="ov-card-title">Phase 1 — Business Validation (HTML Demo)</span>
+                <span class="ov-pill" style="background:rgba(46,125,50,.12);color:var(--green)">Now — Week 4</span>
+              </div>
+              <div class="ov-card-body">
+                <p class="ov-text" style="margin-bottom:14px">The business team tests the standalone HTML demo with real expat scenarios. No installation required — access via a shared file and access code. The focus is on validating that the AI answers the right questions, enforces the right policy boundaries, and reflects real assignment workflows.</p>
+                <div class="ov-table-wrap">
+                  <table class="ov-table">
+                    <thead><tr><th>Validation point</th><th>What we are checking</th></tr></thead>
+                    <tbody>
+                      <tr><td>Answer quality</td><td>Are AI responses accurate, clear, and appropriately scoped to the assignment type?</td></tr>
+                      <tr><td>Policy coverage</td><td>Does the system cover the questions expats actually ask day-to-day?</td></tr>
+                      <tr><td>Action log accuracy</td><td>Do the 34 tasks, deadlines, and owners reflect real GM workflows?</td></tr>
+                      <tr><td>Escalation behaviour</td><td>Does the system correctly flag sensitive topics (tax, visa, exceptions)?</td></tr>
+                      <tr><td>Profile personalisation</td><td>Does the experience feel tailored — or generic?</td></tr>
+                      <tr><td>Gap identification</td><td>Which topics are missing, under-answered, or incorrectly scoped?</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="ov-card">
+              <div class="ov-card-header">
+                <span class="ov-card-title">Phase 2 — Iteration &amp; Enrichment</span>
+                <span class="ov-pill info">Week 4 — Week 8</span>
+              </div>
+              <div class="ov-card-body">
+                <p class="ov-text" style="margin-bottom:14px">Based on validation feedback, the agents, prompts, and content are refined in the HTML demo environment. This phase closes the gaps identified in Phase 1 and produces a fully validated, business-approved specification for production development.</p>
+                <div class="ov-table-wrap" style="margin-bottom:14px">
+                  <table class="ov-table">
+                    <thead><tr><th>Area</th><th>Planned improvement</th></tr></thead>
+                    <tbody>
+                      <tr><td>Agent knowledge</td><td>Incorporate company-specific policy documents and real case examples into agent context</td></tr>
+                      <tr><td>FAQ library</td><td>Expand from profile-triggered questions to a validated set of 30+ FAQs per assignment type</td></tr>
+                      <tr><td>Chat prompts</td><td>Refine system prompts based on answer quality feedback — tone, depth, edge cases</td></tr>
+                      <tr><td>Action log</td><td>Adjust task list, deadlines, and owners based on real GM team workflow review</td></tr>
+                      <tr><td>Escalation logic</td><td>Calibrate triggers from feedback — reduce false positives, catch missed cases</td></tr>
+                      <tr><td>Multi-language</td><td>Assess need for localised responses based on expat population feedback</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="ov-callout neutral">
+                  <div class="ov-callout-title">Exit criteria</div>
+                  <p class="ov-text">Phase 2 is complete when the business team formally approves the demo as an accurate representation of the desired product. This approval is the gate for Phase 3.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="ov-card">
+              <div class="ov-card-header">
+                <span class="ov-card-title">Phase 3 — Traditional Development (Post-Approval)</span>
+                <span class="ov-pill neutral">Week 9 — Week 20</span>
+              </div>
+              <div class="ov-card-body">
+                <div class="ov-callout info" style="margin-bottom:14px">
+                  <div class="ov-callout-title">Development approach</div>
+                  <p class="ov-text">This phase is delivered via traditional software development — no AI-assisted code generation. The validated HTML demo and its agent architecture serve as the full functional specification. A dedicated development team builds the production system against that specification.</p>
+                </div>
+                <div class="ov-table-wrap">
+                  <table class="ov-table">
+                    <thead><tr><th>Stream</th><th>Scope</th><th>Duration</th></tr></thead>
+                    <tbody>
+                      <tr><td>Backend — Agent layer</td><td>Port and harden the multi-agent system: router, specialists, decision engine, confidence engine, access control. Production-grade Node.js with tests, logging, and error handling.</td><td>Wks 9–13</td></tr>
+                      <tr><td>Backend — Data &amp; RAG</td><td>Ingest validated policy documents into a vector store. Build the retrieval pipeline (chunking, embedding, semantic search) that supplies policy chunks to agents.</td><td>Wks 9–14</td></tr>
+                      <tr><td>Backend — API layer</td><td>REST API with authentication, rate limiting, audit logging, and user context management. Integrates with company identity provider (SSO).</td><td>Wks 11–15</td></tr>
+                      <tr><td>Frontend — Expat portal</td><td>Production React SPA: chat interface, action log, profile sidebar, notification bar. Matches the validated HTML demo UX exactly.</td><td>Wks 13–18</td></tr>
+                      <tr><td>Frontend — PBP dashboard</td><td>Admin view: all expat profiles, action stats, overdue flags, user simulation, and reporting.</td><td>Wks 16–20</td></tr>
+                      <tr><td>QA &amp; security review</td><td>End-to-end testing, policy boundary validation, penetration testing, and data privacy review.</td><td>Wks 18–20</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="ov-card">
+              <div class="ov-card-header">
+                <span class="ov-card-title">Phase 4 — Pilot &amp; Rollout</span>
+                <span class="ov-pill neutral">Week 20 — Week 24</span>
+              </div>
+              <div class="ov-card-body">
+                <p class="ov-text" style="margin-bottom:14px">Production system is deployed to a controlled pilot group of 2–3 active expat assignments. Feedback from live usage is collected and addressed before full rollout to all assignments.</p>
+                <div class="ov-table-wrap">
+                  <table class="ov-table">
+                    <thead><tr><th>Activity</th><th>Detail</th></tr></thead>
+                    <tbody>
+                      <tr><td>Pilot deployment</td><td>2–3 live expat assignments across different assignment types</td></tr>
+                      <tr><td>PBP onboarding</td><td>Training for the GM and PBP team on admin dashboard and escalation workflow</td></tr>
+                      <tr><td>Live monitoring</td><td>Track answer quality, escalation rates, action completion, and expat engagement</td></tr>
+                      <tr><td>Issue resolution</td><td>Address any production issues before full rollout gate</td></tr>
+                      <tr><td>Full rollout</td><td>Open to all active assignments — GM team takes operational ownership</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="ov-table-wrap" style="margin-top:16px">
+              <table class="ov-table">
+                <thead><tr><th>Phase</th><th>Focus</th><th>Duration</th><th>Gate</th></tr></thead>
+                <tbody>
+                  <tr class="row-success"><td>1 — Validation</td><td>Business team tests HTML demo</td><td>4 weeks</td><td>Feedback documented</td></tr>
+                  <tr class="row-info"><td>2 — Iteration</td><td>Agents, FAQs, and prompts enriched</td><td>4 weeks</td><td>Formal business approval</td></tr>
+                  <tr><td>3 — Development</td><td>Traditional build of production system</td><td>12 weeks</td><td>QA and security sign-off</td></tr>
+                  <tr><td>4 — Pilot &amp; Rollout</td><td>Live deployment and full rollout</td><td>4 weeks</td><td>GM team operational ownership</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ── FOOTER ── -->
+          <hr class="ov-divider"/>
+          <div class="ov-footer">
+            <span>Expat Concierge V3.0 · Confidential · 2026</span>
+            <span>Global Mobility · AI-Powered · Policy-Scoped</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="toasts"></div>
+
+<!-- ═══ ACCESS CODE MODAL ═══ -->
+<div id="accessModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(15,59,79,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:20px;box-shadow:0 24px 64px rgba(15,39,68,.18);padding:48px 40px;max-width:440px;width:90%;text-align:center;animation:modalIn .25s ease;border:1px solid #E5E7EB;border-bottom:6px solid #F4D21F">
+    <div style="width:56px;height:56px;border-radius:16px;background:#0F3B4F;margin:0 auto 20px;display:flex;align-items:center;justify-content:center">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F4D21F" stroke-width="2.2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#6B7280;text-transform:uppercase;margin-bottom:8px">Expat Concierge · Demo</div>
+    <h2 style="font-size:28px;font-weight:800;color:#0F3B4F;margin:0 0 12px;line-height:1.2">Welcome</h2>
+    <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 28px">Enter the access code provided by your contact to start the demo.</p>
+    <input id="accessCodeInput" type="password"
+      placeholder="Paste access code here…"
+      style="width:100%;box-sizing:border-box;height:48px;padding:0 16px;border:1px solid #D1D5DB;border-radius:12px;font-size:15px;font-family:monospace;outline:none;transition:border-color .18s;margin-bottom:10px"
+      onfocus="this.style.borderColor='#0F3B4F';this.style.boxShadow='0 0 0 4px rgba(15,59,79,.14)'"
+      onblur="this.style.borderColor='#D1D5DB';this.style.boxShadow='none'"
+      onkeydown="if(event.key==='Enter')submitAccessCode()"
+    />
+    <div id="accessCodeErr" style="font-size:13px;color:#D14343;min-height:18px;margin-bottom:12px;font-weight:600"></div>
+    <button onclick="submitAccessCode()"
+      style="width:100%;min-height:48px;padding:0 20px;background:#F4D21F;color:#111827;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .18s"
+      onmouseover="this.style.background='#E7C400'" onmouseout="this.style.background='#F4D21F'">
+      Start Demo →
+    </button>
+    <p style="font-size:13px;color:#6B7280;margin:20px 0 0;line-height:1.5">The code is saved only in your browser — it's never sent anywhere other than the AI service.</p>
+  </div>
+</div>
+<style>@keyframes modalIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}</style>
+
+<script>
+function safeMarkdown(text) {
+  const src = text || "";
+  try {
+    if (typeof marked !== "undefined") return marked.parse(src);
+  } catch (_) { /* CDN/local marked failed */ }
+  return "<p>" + escHtml(src)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\n\n/g, "</p><p>")
+    .replace(/\n/g, "<br>") + "</p>";
+}
+
+if (typeof marked !== "undefined") marked.setOptions({ breaks: true, gfm: true });
+
+// ── Config ───────────────────────────────────────────────────────────────────
+const GITHUB_MODEL = "gpt-4o";
+const API_URL      = "https://models.inference.ai.azure.com/chat/completions";
+const IS_SERVED    = window.location.protocol !== "file:";
+const PROXY_CHAT_URL = "/askV3?stream=true";
+const OFFLINE_CHAT_URL = "/demo/chat?stream=true";
+let chatMode = localStorage.getItem("ec_chat_mode") || (IS_SERVED ? "auto" : "offline");
+
+function isNetworkError(err) {
+  return err && (err.message === "Failed to fetch" || err.name === "TypeError");
+}
+
+function setChatMode(mode) {
+  chatMode = mode;
+  localStorage.setItem("ec_chat_mode", mode);
+  updateChatModeBadge();
+}
+
+function updateChatModeBadge() {
+  const el = document.getElementById("chatModeBadge");
+  if (!el) return;
+  if (chatMode === "offline" || window.__lastChatOffline) {
+    el.textContent = "Offline policy demo";
+    el.style.display = "inline-flex";
+  } else if (IS_SERVED) {
+    el.textContent = "Server proxy";
+    el.style.display = "inline-flex";
+  } else {
+    el.style.display = "none";
+  }
+}
+
+function getToken() {
+  return localStorage.getItem("ec_github_token") || "";
+}
+
+function saveToken() {
+  const val = document.getElementById("cfgTokenInput").value.trim();
+  if (!val) { setTokenStatus("Please enter a token.", "err"); return; }
+  localStorage.setItem("ec_github_token", val);
+  document.getElementById("cfgSavedNotice").style.display = "flex";
+  setTokenStatus("Access code saved to this browser.", "ok");
+  toast("Access code saved! You can now use the chat.", "ok");
+}
+
+function clearToken() {
+  localStorage.removeItem("ec_github_token");
+  document.getElementById("cfgTokenInput").value = "";
+  document.getElementById("cfgSavedNotice").style.display = "none";
+  setTokenStatus("Token cleared.", "warn");
+}
+
+function submitAccessCode() {
+  const val = document.getElementById("accessCodeInput").value.trim();
+  const errEl = document.getElementById("accessCodeErr");
+  if (!val) { errEl.textContent = "Please paste the access code."; return; }
+  if (val.length < 20) { errEl.textContent = "Code seems too short — check and try again."; return; }
+  errEl.textContent = "";
+  localStorage.setItem("ec_github_token", val);
+  document.getElementById("accessModal").style.display = "none";
+  toast("Access granted! Welcome to the demo.", "ok");
+}
+
+function toggleTokenVisibility() {
+  const inp = document.getElementById("cfgTokenInput");
+  const btn = document.getElementById("cfgShowBtn");
+  if (inp.type === "password") { inp.type = "text"; btn.textContent = "Hide"; }
+  else { inp.type = "password"; btn.textContent = "Show"; }
+}
+
+async function testToken() {
+  const token = document.getElementById("cfgTokenInput").value.trim() || getToken();
+  const btn = document.getElementById("cfgTestBtn");
+  btn.disabled = true; btn.textContent = "Testing…";
+  setTokenStatus("", "");
+
+  // Corporate networks: test local paths first (no external API from browser)
+  if (IS_SERVED) {
+    try {
+      const h = await fetch("/demo/health");
+      if (h.ok) {
+        setTokenStatus("✓ Offline demo available (no external network required).", "ok");
+        toast("Offline demo ready — chat works without GitHub API.", "ok");
+        btn.disabled = false; btn.textContent = "Test Connection";
+        return;
+      }
+    } catch (_) { /* continue */ }
+
+    try {
+      const hres = await fetch("/askV3/health");
+      const h = await hres.json().catch(() => ({}));
+      if (h.llm?.provider === "azure") {
+        setTokenStatus("✓ Azure OpenAI configured on server (" + h.llm.model + ").", "ok");
+        toast("Server LLM: Azure OpenAI", "ok");
+        btn.disabled = false; btn.textContent = "Test Connection";
+        return;
+      }
+      if (h.llm?.warning) {
+        setTokenStatus("⚠ " + h.llm.warning, "warn");
+        btn.disabled = false; btn.textContent = "Test Connection";
+        return;
+      }
+    } catch (_) { /* continue */ }
+
+    try {
+      const res = await fetch("/askV3?stream=false", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: "Hi", userId: "u_lta_family" }),
+      });
+      if (res.ok) {
+        setTokenStatus("✓ Server AI proxy OK — chat uses localhost (no browser token needed).", "ok");
+        toast("Server proxy OK!", "ok");
+        btn.disabled = false; btn.textContent = "Test Connection";
+        return;
+      }
+      const body = await res.json().catch(() => ({}));
+      setTokenStatus("Server proxy unavailable (" + (body.error || res.status) + ") — offline demo still works.", "warn");
+      btn.disabled = false; btn.textContent = "Test Connection";
+      return;
+    } catch (e) {
+      setTokenStatus("✗ Cannot reach local server. Run: node server.js", "err");
+      btn.disabled = false; btn.textContent = "Test Connection";
+      return;
+    }
+  }
+
+  if (!token) { setTokenStatus("No token to test. Paste a token first.", "err"); btn.disabled = false; btn.textContent = "Test Connection"; return; }
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify({ model: GITHUB_MODEL, max_tokens: 5, stream: false,
+        messages: [{ role: "user", content: "Hi" }] }),
+    });
+    if (res.ok) {
+      setTokenStatus("✓ Connection successful! Token is valid.", "ok");
+      document.getElementById("cfgTokenInput").value = token;
+      toast("API connection OK!", "ok");
+    } else {
+      const body = await res.json().catch(() => ({}));
+      const msg = body.error?.message || "HTTP " + res.status;
+      if (res.status === 401) {
+        setTokenStatus("✗ Unauthorized (401) — token is invalid or expired. Generate a new one on GitHub.", "err");
+      } else {
+        setTokenStatus("✗ Error: " + msg, "err");
+      }
+    }
+  } catch (e) {
+    if (e.message === "Failed to fetch" || e.name === "TypeError") {
+      setTokenStatus("✗ Network blocked — your network or firewall is preventing access to the AI service (models.inference.ai.azure.com). Try on a different network (e.g. mobile hotspot) or ask your IT team to whitelist that domain.", "err");
+    } else {
+      setTokenStatus("✗ Network error: " + e.message, "err");
+    }
+  } finally {
+    btn.disabled = false; btn.textContent = "Test Connection";
+  }
+}
+
+function setTokenStatus(msg, type) {
+  const el = document.getElementById("cfgTokenStatus");
+  el.textContent = msg;
+  el.className = "config-token-status " + type;
+}
+
+function initConfigPage() {
+  const saved = getToken();
+  const inp = document.getElementById("cfgTokenInput");
+  if (inp && saved) {
+    inp.value = saved;
+    document.getElementById("cfgSavedNotice").style.display = "flex";
+    setTokenStatus("Access code loaded from browser storage.", "ok");
+  }
+}
+const ALL_TYPES    = ["lta","sta","ia","commuter"];
+const TODAY        = new Date(); TODAY.setHours(0,0,0,0);
+
+const SUGGESTED_QUESTIONS = [
+  "What are the key steps in my expatriation process?",
+  "What benefits are offered to me during my assignment?",
+  "What can I expect from my Look & See visit?",
+  "What housing support is offered?",
+];
+
+// ── Journey stepper (5 major phases from action log) ───────────────────────
+const JOURNEY_STEPS = [
+  { label: "Offer & LOA",  short: "Offer" },
+  { label: "Immigration",  short: "Visa" },
+  { label: "Pre-Move",     short: "Prepare" },
+  { label: "Travel",       short: "Move" },
+  { label: "Arrival",      short: "Settle" },
+];
+
+const COUNTRY_ISO = {
+  "Brazil":"BR", "United States":"US", "Mexico":"MX", "Germany":"DE",
+  "South Korea":"KR", "United Kingdom":"GB", "Portugal":"PT", "Spain":"ES",
+  "France":"FR", "Netherlands":"NL", "Belgium":"BE", "Italy":"IT", "Canada":"CA",
+  "Australia":"AU", "Japan":"JP", "China":"CN", "India":"IN", "Argentina":"AR",
+};
+
+function countryFlag(country) {
+  const code = COUNTRY_ISO[country];
+  if (!code) return "🏳️";
+  return String.fromCodePoint(...code.split("").map(c => 0x1F1E6 + c.charCodeAt(0) - 65));
+}
+
+function getTaskJourneyPhase(task) {
+  if (["Offer", "Onboarding", "Letter of Assignment"].includes(task.cat)) return 0;
+  if (task.cat === "Immigration" || task.cat === "Tax") return 1;
+  if (task.slot === "arrival") return 4;
+  if (task.slot === "30d") return 3;
+  return 2;
+}
+
+function getJourneyPhaseStates(userId) {
+  const tasks = getUserTasks(userId);
+  let currentSet = false;
+  return JOURNEY_STEPS.map((step, i) => {
+    const phaseTasks = tasks.filter(t => getTaskJourneyPhase(t) === i);
+    const total = phaseTasks.length;
+    const done = phaseTasks.filter(t => t.status === "done").length;
+    const hasOverdue = phaseTasks.some(t => t.status === "overdue");
+    let state;
+    if (total === 0 || done === total) state = "done";
+    else if (!currentSet) { state = "current"; currentSet = true; }
+    else state = "upcoming";
+    return { ...step, done, total, state, hasOverdue };
+  });
+}
+
+function renderJourneyStepper(userId) {
+  const el = document.getElementById("journeyStepper");
+  if (!el) return;
+  if (!userId || !USERS[userId]) {
+    el.innerHTML = "";
+    return;
+  }
+  const corp = USERS[userId].corporateContext;
+  const phases = getJourneyPhaseStates(userId);
+  let track = "";
+  phases.forEach((p, i) => {
+    if (i > 0) track += '<div class="j-connector' + (phases[i - 1].state === "done" ? " done" : "") + '"></div>';
+    const cls = "j-step " + p.state + (p.hasOverdue && p.state === "current" ? " warn" : "");
+    track += '<div class="' + cls + '" title="' + p.label + " — " + p.done + "/" + p.total + ' completed">' +
+      '<span class="j-dot"></span><span class="j-label">' + p.short + '</span></div>';
+  });
+  el.innerHTML =
+    '<span class="j-flag" title="' + corp.homeCountry + '">' + countryFlag(corp.homeCountry) + '</span>' +
+    '<div class="j-track">' + track + '</div>' +
+    '<span class="j-flag" title="' + corp.hostCountry + '">' + countryFlag(corp.hostCountry) + '</span>';
+}
+
+// ── Master Task List (from Assignment Responsibility spreadsheet) ─────────────
+const MASTER_TASKS = [
+  { id:1,  order:1,  task:"Review and discuss the offer with Host line manager and Host PBP",                    cat:"Offer",               slot:"90-120d", condition:null,              owner:"Expat"    },
+  { id:2,  order:2,  task:"Confirm offer acceptance",                                                           cat:"Offer",               slot:"90-120d", condition:null,              owner:"Expat"    },
+  { id:3,  order:3,  task:"Have an Onboarding call with Global Mobility",                                       cat:"Onboarding",          slot:"90-120d", condition:null,              owner:"GM"       },
+  { id:4,  order:4,  task:"Review and sign the Letter of Assignment through DocuSign",                          cat:"Letter of Assignment", slot:"90-120d", condition:null,              owner:"Expat"    },
+  { id:5,  order:5,  task:"Have an Immigration briefing with Vialto",                                           cat:"Immigration",          slot:"90-120d", condition:null,              owner:"Vialto"   },
+  { id:6,  order:6,  task:"Gather and share personal Immigration documents required",                           cat:"Immigration",          slot:"90-120d", condition:null,              owner:"Expat"    },
+  { id:7,  order:7,  task:"Schedule the Tax & Equity briefing with Home & Host Vialto Tax team",               cat:"Tax",                  slot:"90-120d", condition:"hasTaxConcerns",  owner:"Vialto"   },
+  { id:8,  order:8,  task:"Have a briefing with K2 about your and family's needs in the Host location",         cat:"Destination Services", slot:"90-120d", condition:null,              owner:"K2"       },
+  { id:9,  order:9,  task:"Plan the Look & See trip and align logistics with K2",                               cat:"Destination Services", slot:"90-120d", condition:null,              owner:"K2"       },
+  { id:10, order:10, task:"Review the final visa application package and confirm/submit the application",        cat:"Immigration",          slot:"90-120d", condition:"hasImmigration",  owner:"Expat"    },
+  { id:11, order:11, task:"Connect with Net Expat for Intercultural Training and Partner Support",              cat:"Destination Services", slot:"60d",     condition:"needsIntercultural",owner:"Net Expat"},
+  { id:12, order:12, task:"Attend the Look & See trip",                                                         cat:"Destination Services", slot:"60d",     condition:null,              owner:"Expat"    },
+  { id:13, order:13, task:"Confirm the preferred living area at host with K2",                                  cat:"Destination Services", slot:"60d",     condition:null,              owner:"Expat"    },
+  { id:14, order:14, task:"Schedule pre-move survey for HHG shipment",                                         cat:"Destination Services", slot:"60d",     condition:null,              owner:"K2"       },
+  { id:15, order:15, task:"Submit school application",                                                          cat:"Destination Services", slot:"60d",     condition:"hasChildren",     owner:"Expat"    },
+  { id:16, order:16, task:"Organise Pet Shipment",                                                              cat:"Destination Services", slot:"60d",     condition:"hasPets",         owner:"K2"       },
+  { id:17, order:17, task:"Conduct final health check and identify any medical needs in the Host",              cat:"Healthcare",           slot:"60d",     condition:null,              owner:"Expat"    },
+  { id:18, order:18, task:"Identify memberships/leases/etc that need to be reviewed/cancelled in Home country", cat:"Departure",           slot:"60d",     condition:null,              owner:"Expat"    },
+  { id:19, order:19, task:"Conduct the Packing of Household Goods with K2",                                    cat:"Departure",           slot:"60d",     condition:null,              owner:"K2"       },
+  { id:20, order:20, task:"Organise Temporary Living in Home/Host with K2",                                    cat:"Destination Services", slot:"60d",     condition:"needsTempHousing",owner:"K2"       },
+  { id:21, order:21, task:"Provide documents required for customs clearance",                                   cat:"Destination Services", slot:"60d",     condition:null,              owner:"Expat"    },
+  { id:22, order:22, task:"Receive Immigration confirmation and align with Vialto on post-arrival immigration", cat:"Immigration",          slot:"30d",     condition:"hasImmigration",  owner:"Vialto"   },
+  { id:23, order:23, task:"Book final move ticket after visa is issued",                                        cat:"Travel",              slot:"30d",     condition:null,              owner:"Expat"    },
+  { id:24, order:24, task:"Relocate to the Host location with your family",                                    cat:"Travel",              slot:"30d",     condition:null,              owner:"Expat"    },
+  { id:25, order:25, task:"Move into Temporary Housing",                                                       cat:"Destination Services", slot:"arrival", condition:"needsTempHousing",owner:"Expat"    },
+  { id:26, order:26, task:"Open bank account in Host country",                                                 cat:"Destination Services", slot:"arrival", condition:null,              owner:"Expat"    },
+  { id:27, order:27, task:"Follow guidance from Vialto for any post-arrival immigration process",              cat:"Immigration",          slot:"arrival", condition:"hasImmigration",  owner:"Vialto"   },
+  { id:28, order:28, task:"Follow guidance from K2 for any post-arrival processes",                            cat:"Destination Services", slot:"arrival", condition:null,              owner:"K2"       },
+  { id:29, order:29, task:"Move into Permanent Housing",                                                       cat:"Destination Services", slot:"arrival", condition:null,              owner:"Expat"    },
+  { id:30, order:30, task:"Arrange Household Goods delivery",                                                  cat:"Destination Services", slot:"arrival", condition:null,              owner:"K2"       },
+  { id:31, order:31, task:"Schedule Language Training",                                                        cat:"Destination Services", slot:"arrival", condition:"hasLanguageBarrier",owner:"Expat"   },
+  { id:32, order:32, task:"Register Cigna Envoy after receiving Cigna Welcome Email",                          cat:"Healthcare",           slot:"arrival", condition:null,              owner:"Expat"    },
+  { id:33, order:33, task:"Review the drafted first host payroll with Global Mobility",                        cat:"Payroll",             slot:"arrival", condition:null,              owner:"GM"       },
+  { id:34, order:34, task:"Organise local Onboarding with line manager and local PBP",                        cat:"Onboarding",          slot:"arrival", condition:null,              owner:"Expat"    },
+];
+
+// ── Risk Matrix (v1 — revise tiers/weights here) ─────────────────────────────
+const RISK_MATRIX = {
+  version: "1.0",
+  updated: "2026-08",
+  purpose: "Score incomplete action-log tasks by how much they block relocation or assignment completion.",
+  tiers: {
+    blocker:  { label: "Blocker",  weight: 5, desc: "Hard gate — blocks move or assignment completion until resolved." },
+    critical: { label: "Critical", weight: 4, desc: "Strong dependency on the critical path (visa, payroll, healthcare)." },
+    high:     { label: "High",     weight: 3, desc: "Important for a successful move or settle-in." },
+    medium:   { label: "Medium",   weight: 2, desc: "Supporting task — delays cause friction but rarely block alone." },
+    low:      { label: "Low",      weight: 1, desc: "Optional / enrichment — minimal impact on assignment success." },
+  },
+  gates: {
+    start:    "Pre-move gate — must complete before package proceeds",
+    move:     "Relocation gate — blocks physical move to host country",
+    settle:   "Settle-in gate — blocks stable life in host country",
+    complete: "Completion gate — blocks formal assignment closure",
+    support:  "Support — improves experience, rarely blocks alone",
+  },
+  statusMultipliers: { overdue: 2.0, dueSoon: 1.35, pending: 1.0 },
+  levelThresholds: [
+    { level: "low",      label: "Low",      maxScore: 18 },
+    { level: "medium",   label: "Medium",   maxScore: 40 },
+    { level: "high",     label: "High",     maxScore: 65 },
+    { level: "critical", label: "Critical", maxScore: Infinity },
+  ],
+  escalationRules: [
+    "Any Blocker-tier task overdue → overall risk = Critical (regardless of score).",
+    "Two or more Critical-tier tasks overdue → overall risk = Critical.",
+    "Risk score = Σ (tier weight × status multiplier) for all incomplete tasks in the user's action log.",
+    "Completed tasks contribute zero. Conditional tasks only apply when profile flags match.",
+    "Higher weight on gates: move, settle, and complete — these block the end of the assignment journey.",
+  ],
+  tasks: {
+    1:  { tier: "high",     gate: "start",    note: "Offer discussion — precedes acceptance" },
+    2:  { tier: "blocker",  gate: "start",    note: "Offer acceptance — blocks LOA and package" },
+    3:  { tier: "medium",   gate: "start",    note: "GM onboarding — orientation, not a hard gate" },
+    4:  { tier: "blocker",  gate: "start",    note: "Signed LOA — legal basis for assignment" },
+    5:  { tier: "critical", gate: "start",    note: "Immigration briefing — visa path begins" },
+    6:  { tier: "critical", gate: "start",    note: "Immigration documents — required for visa" },
+    7:  { tier: "high",     gate: "start",    note: "Tax briefing (if applicable)" },
+    8:  { tier: "medium",   gate: "support",  note: "K2 needs briefing — housing/school planning" },
+    9:  { tier: "medium",   gate: "support",  note: "Look & See planning" },
+    10: { tier: "blocker",  gate: "move",     note: "Visa application submitted — blocks travel" },
+    11: { tier: "low",      gate: "support",  note: "Intercultural training (if applicable)" },
+    12: { tier: "medium",   gate: "support",  note: "Look & See trip attendance" },
+    13: { tier: "medium",   gate: "settle",   note: "Preferred area — feeds housing search" },
+    14: { tier: "high",     gate: "move",     note: "HHG survey — shipment timeline" },
+    15: { tier: "high",     gate: "settle",   note: "School application (if children)" },
+    16: { tier: "medium",   gate: "support",  note: "Pet shipment (if applicable)" },
+    17: { tier: "medium",   gate: "settle",   note: "Health check before move" },
+    18: { tier: "medium",   gate: "move",     note: "Home-country cancellations" },
+    19: { tier: "high",     gate: "move",     note: "HHG packing — physical move prep" },
+    20: { tier: "high",     gate: "settle",   note: "Temporary living (if applicable)" },
+    21: { tier: "high",     gate: "move",     note: "Customs documents — HHG clearance" },
+    22: { tier: "blocker",  gate: "move",     note: "Immigration confirmation — required before move" },
+    23: { tier: "blocker",  gate: "move",     note: "Book ticket after visa — cannot travel without" },
+    24: { tier: "blocker",  gate: "move",     note: "Relocate to host — core relocation gate" },
+    25: { tier: "high",     gate: "settle",   note: "Temporary housing check-in (if applicable)" },
+    26: { tier: "critical", gate: "settle",   note: "Bank account — payroll and daily life" },
+    27: { tier: "critical", gate: "settle",   note: "Post-arrival immigration compliance" },
+    28: { tier: "medium",   gate: "settle",   note: "K2 post-arrival processes" },
+    29: { tier: "blocker",  gate: "settle",   note: "Permanent housing — blocks stable settle-in" },
+    30: { tier: "medium",   gate: "settle",   note: "HHG delivery at host" },
+    31: { tier: "low",      gate: "support",  note: "Language training (if applicable)" },
+    32: { tier: "critical", gate: "settle",   note: "Cigna registration — healthcare coverage" },
+    33: { tier: "critical", gate: "complete", note: "First host payroll review — compensation live" },
+    34: { tier: "blocker",  gate: "complete", note: "Local onboarding — assignment operationally complete" },
+  },
+};
+
+function getTaskRiskMeta(taskId) {
+  return RISK_MATRIX.tasks[taskId] || { tier: "medium", gate: "support", note: "" };
+}
+
+function computeAssignmentRisk(userId) {
+  if (!userId) return null;
+  const tasks = getUserTasks(userId);
+  const contributors = [];
+  let score = 0;
+  let blockerOverdue = 0;
+  let criticalOverdue = 0;
+
+  for (const t of tasks) {
+    if (t.status === "done") continue;
+    const meta = getTaskRiskMeta(t.id);
+    const tier = meta.tier;
+    const weight = RISK_MATRIX.tiers[tier]?.weight || 2;
+    let mult = RISK_MATRIX.statusMultipliers.pending;
+    if (t.status === "overdue") mult = RISK_MATRIX.statusMultipliers.overdue;
+    else if (t.daysUntil >= 0 && t.daysUntil <= 14) mult = RISK_MATRIX.statusMultipliers.dueSoon;
+    const points = weight * mult;
+    score += points;
+    if (tier === "blocker" && t.status === "overdue") blockerOverdue++;
+    if (tier === "critical" && t.status === "overdue") criticalOverdue++;
+    contributors.push({ task: t, meta, tier, weight, mult, points });
+  }
+
+  let level = "low";
+  let label = RISK_MATRIX.levelThresholds[0].label;
+  if (blockerOverdue > 0 || criticalOverdue >= 2) {
+    level = "critical";
+    label = "Critical";
+  } else {
+    for (const th of RISK_MATRIX.levelThresholds) {
+      if (score <= th.maxScore) {
+        level = th.level;
+        label = th.label;
+        break;
+      }
+    }
+  }
+
+  contributors.sort((a, b) => b.points - a.points);
+  return {
+    score: Math.round(score),
+    level,
+    label,
+    shortLabel: label.length > 6 ? label.slice(0, 4).toUpperCase() : label.toUpperCase(),
+    contributors,
+    topRisks: contributors.slice(0, 5),
+    blockerOverdue,
+    criticalOverdue,
+    overdueCount: tasks.filter(t => t.status === "overdue").length,
+  };
+}
+
+function updateRiskWidget() {
+  const btn = document.getElementById("cabRiskBtn");
+  const el = document.getElementById("cab-risk-level");
+  if (!btn || !el || !activeUserId) return;
+  const risk = computeAssignmentRisk(activeUserId);
+  if (!risk) {
+    el.textContent = "—";
+    btn.className = "cab-sum-card risk-low";
+    return;
+  }
+  el.textContent = risk.shortLabel;
+  btn.className = "cab-sum-card risk-" + risk.level;
+  btn.title = risk.label + " risk (score " + risk.score + ") — click for matrix";
+}
+
+function renderRiskMatrixPage() {
+  const content = document.getElementById("riskPageContent");
+  if (!content) return;
+  if (!activeUserId) {
+    content.innerHTML = '<div class="risk-panel"><div class="risk-panel-body">Select a user to view the risk matrix.</div></div>';
+    return;
+  }
+
+  const ctx = USERS[activeUserId];
+  const risk = computeAssignmentRisk(activeUserId);
+  const tasks = getUserTasks(activeUserId);
+
+  document.getElementById("riskPageTitle").textContent = ctx.identity.name + " — Risk Matrix";
+  document.getElementById("riskPageSubtitle").textContent =
+    "Score " + risk.score + " · " + risk.overdueCount + " overdue · " +
+    risk.blockerOverdue + " blocker overdue · v" + RISK_MATRIX.version;
+
+  const scoreCard = document.getElementById("riskPageScoreCard");
+  const scoreVal = document.getElementById("riskPageScoreVal");
+  const scoreLbl = document.getElementById("riskPageScoreLbl");
+  scoreCard.className = "risk-score-card " + risk.level;
+  scoreVal.textContent = risk.label;
+  scoreLbl.textContent = "Score " + risk.score;
+
+  let tierCards = "";
+  for (const [key, tier] of Object.entries(RISK_MATRIX.tiers)) {
+    tierCards +=
+      '<div class="risk-tier-card ' + key + '">' +
+        '<div class="risk-tier-name">' + tier.label + ' · weight ' + tier.weight + '</div>' +
+        '<div class="risk-tier-meta">' + tier.desc + '</div>' +
+      '</div>';
+  }
+
+  let rules = RISK_MATRIX.escalationRules.map(r => "<li>" + r + "</li>").join("");
+
+  let gateRows = Object.entries(RISK_MATRIX.gates)
+    .map(([k, v]) => "<tr><td><span class=\"risk-gate\">" + k + "</span></td><td>" + v + "</td></tr>")
+    .join("");
+
+  let taskRows = "";
+  for (const t of tasks) {
+    const meta = getTaskRiskMeta(t.id);
+    const tier = meta.tier;
+    const weight = RISK_MATRIX.tiers[tier]?.weight || 2;
+    let mult = RISK_MATRIX.statusMultipliers.pending;
+    if (t.status === "overdue") mult = RISK_MATRIX.statusMultipliers.overdue;
+    else if (t.daysUntil >= 0 && t.daysUntil <= 14) mult = RISK_MATRIX.statusMultipliers.dueSoon;
+    const points = t.status === "done" ? 0 : Math.round(weight * mult);
+    const rowCls = t.status === "done" ? "row-done" : (t.status === "overdue" ? "row-overdue" : "");
+    const statusLbl = t.status === "done" ? "Done" : (t.status === "overdue" ? "Overdue" : "Pending");
+    taskRows +=
+      "<tr class=\"" + rowCls + "\">" +
+        "<td>" + t.order + "</td>" +
+        "<td>" + t.task + "</td>" +
+        "<td><span class=\"risk-tag " + tier + "\">" + RISK_MATRIX.tiers[tier].label + "</span></td>" +
+        "<td><span class=\"risk-gate\">" + meta.gate + "</span></td>" +
+        "<td>" + weight + "</td>" +
+        "<td>" + statusLbl + (t.status !== "done" ? " · " + fmtDate(t.deadline) : "") + "</td>" +
+        "<td>" + (points ? points : "—") + "</td>" +
+        "<td style=\"font-size:11px;color:var(--g5)\">" + (meta.note || "") + "</td>" +
+      "</tr>";
+  }
+
+  let topRisks = "";
+  if (risk.topRisks.length) {
+    topRisks = "<ul class=\"risk-rules\">" +
+      risk.topRisks.map(c =>
+        "<li><strong>" + c.task.task + "</strong> — " + c.points + " pts (" +
+        RISK_MATRIX.tiers[c.tier].label + ", " + c.task.status + ")</li>"
+      ).join("") + "</ul>";
+  } else {
+    topRisks = "<p style=\"font-size:13px;color:var(--g5)\">No open risk contributors — all tasks complete.</p>";
+  }
+
+  content.innerHTML =
+    '<div class="risk-panel">' +
+      '<div class="risk-panel-head">Escalation rules</div>' +
+      '<div class="risk-panel-body"><ul class="risk-rules">' + rules + '</ul></div>' +
+    '</div>' +
+    '<div class="risk-panel">' +
+      '<div class="risk-panel-head">Tier weights (edit in <code>RISK_MATRIX.tiers</code>)</div>' +
+      '<div class="risk-panel-body"><div class="risk-tier-grid">' + tierCards + '</div></div>' +
+    '</div>' +
+    '<div class="risk-panel">' +
+      '<div class="risk-panel-head">Gate types — what blocks the assignment</div>' +
+      '<div class="risk-panel-body">' +
+        '<div class="risk-table-wrap"><table class="risk-table"><tbody>' + gateRows + '</tbody></table></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="risk-panel">' +
+      '<div class="risk-panel-head">Top risk drivers (this user)</div>' +
+      '<div class="risk-panel-body">' + topRisks + '</div>' +
+    '</div>' +
+    '<div class="risk-panel">' +
+      '<div class="risk-panel-head">Full matrix — 34 action-log tasks</div>' +
+      '<div class="risk-panel-body">' +
+        '<div class="risk-table-wrap"><table class="risk-table">' +
+          '<thead><tr><th>#</th><th>Task</th><th>Tier</th><th>Gate</th><th>Wt</th><th>Status</th><th>Pts</th><th>Rationale</th></tr></thead>' +
+          '<tbody>' + taskRows + '</tbody>' +
+        '</table></div>' +
+      '</div>' +
+    '</div>';
+}
+
+// ── Category CSS class map ────────────────────────────────────────────────────
+const CAT_CLASS = {
+  "Offer":"cat-offer","Onboarding":"cat-onboarding","Letter of Assignment":"cat-loa",
+  "Immigration":"cat-immigration","Tax":"cat-tax","Destination Services":"cat-destination",
+  "Healthcare":"cat-healthcare","Departure":"cat-departure","Travel":"cat-travel","Payroll":"cat-payroll"
+};
+
+// ── Per-user action status (pre-populated to reflect realistic state) ─────────
+// completedIds = task IDs marked done; overdueIds = task IDs that are overdue and NOT done
+const USER_ACTIONS = {
+  u_lta_family: {
+    moveDate: "2026-09-15",
+    completedIds: [1,2,3,4,5,6],
+  },
+  u_sta_single: {
+    moveDate: "2026-02-01",
+    completedIds: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,17,18,19,21,22,23,24,25,26,27,28,29,30,32,33,34],
+  },
+  u_ia_complex: {
+    moveDate: "2025-09-01",
+    completedIds: [1,2,3,4,5,6,7,8,9,10,12,13,14,15,17,18,19,21,22,23,24,26,27,28,29,30,32,33,34],
+  },
+  u_commuter: {
+    moveDate: "2026-08-15",
+    completedIds: [1,2,3,4,5],
+  },
+};
+
+// ── Users ────────────────────────────────────────────────────────────────────
+const USERS = {
+  u_lta_family: {
+    id:"u_lta_family",
+    identity:{name:"John Doe",email:"john.doe@company.com",avatar:"JD"},
+    permissions:{assignmentType:"LTA",policiesAllowed:["lta-global-2026-v3"]},
+    corporateContext:{homeCountry:"Brazil",hostCountry:"United States",department:"Supply Chain",manager:"Sarah Chen"},
+    profile:{
+      family:{hasPartner:true,hasChildren:true,childrenAges:[5,10],hasPets:true,petsDeclared:true},
+      mobility:{firstAssignment:true,relocationExperienceLevel:"low",languageBarrier:true},
+      move:{needsSchoolSearch:true,needsTempHousing:true},
+      financial:{concernedAboutTaxes:true,wantsBenefitDetails:true},
+      timeline:{assignmentStage:"pre-assignment",immigrationInProgress:true,visaApproved:false},
+      preferences:{preferredResponseStyle:"detailed",wantsStepByStep:true}
+    }
+  },
+  u_sta_single: {
+    id:"u_sta_single",
+    identity:{name:"Ana Ferreira",email:"ana.ferreira@company.com",avatar:"AF"},
+    permissions:{assignmentType:"STA",policiesAllowed:["sta-latam-2026-v2"]},
+    corporateContext:{homeCountry:"Mexico",hostCountry:"Germany",department:"Finance",manager:"Klaus Müller"},
+    profile:{
+      family:{hasPartner:false,hasChildren:false,childrenAges:[],hasPets:false,petsDeclared:true},
+      mobility:{firstAssignment:false,relocationExperienceLevel:"high",languageBarrier:false},
+      move:{needsSchoolSearch:false,needsTempHousing:true},
+      financial:{concernedAboutTaxes:false,wantsBenefitDetails:false},
+      timeline:{assignmentStage:"mid-assignment",immigrationInProgress:false,visaApproved:true},
+      preferences:{preferredResponseStyle:"concise",wantsStepByStep:false}
+    }
+  },
+  u_ia_complex: {
+    id:"u_ia_complex",
+    identity:{name:"David Park",email:"david.park@company.com",avatar:"DP"},
+    permissions:{assignmentType:"IA",policiesAllowed:["ia-apac-2026-v1"]},
+    corporateContext:{homeCountry:"South Korea",hostCountry:"United Kingdom",department:"Marketing",manager:"Emma Williams"},
+    profile:{
+      family:{hasPartner:true,hasChildren:true,childrenAges:[3,7,14],hasPets:false,petsDeclared:false},
+      mobility:{firstAssignment:false,relocationExperienceLevel:"medium",languageBarrier:false},
+      move:{needsSchoolSearch:true,needsTempHousing:false},
+      financial:{concernedAboutTaxes:true,wantsBenefitDetails:true},
+      timeline:{assignmentStage:"post-assignment",immigrationInProgress:false,visaApproved:true},
+      preferences:{preferredResponseStyle:"detailed",wantsStepByStep:false}
+    }
+  },
+  u_commuter: {
+    id:"u_commuter",
+    identity:{name:"Maria Santos",email:"maria.santos@company.com",avatar:"MS"},
+    permissions:{assignmentType:"COMMUTER",policiesAllowed:["commuter-emea-2026-v1"]},
+    corporateContext:{homeCountry:"Portugal",hostCountry:"Spain",department:"Operations",manager:"Carlos Ruiz"},
+    profile:{
+      family:{hasPartner:true,hasChildren:false,childrenAges:[],hasPets:true,petsDeclared:true},
+      mobility:{firstAssignment:true,relocationExperienceLevel:"low",languageBarrier:false},
+      move:{needsSchoolSearch:false,needsTempHousing:false},
+      financial:{concernedAboutTaxes:true,wantsBenefitDetails:true},
+      timeline:{assignmentStage:"pre-assignment",immigrationInProgress:true,visaApproved:false},
+      preferences:{preferredResponseStyle:"detailed",wantsStepByStep:true}
+    }
+  }
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let activeUserId  = null;
+let activeUserCtx = null;
+let chatHistory   = [];
+let chatBusy      = false;
+let emptyCleared  = false;
+let activeFilter  = "all";
+
+// In-session completed task tracking (per user)
+const sessionCompleted = {};
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+function showPage(page) {
+  document.querySelectorAll(".pg").forEach(p => p.classList.remove("active"));
+  document.getElementById("pg" + page[0].toUpperCase() + page.slice(1)).classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+  const navEl = document.getElementById("nav" + page[0].toUpperCase() + page.slice(1));
+  if (navEl) navEl.classList.add("active");
+  if (page === "users")   renderUsersGrid();
+  if (page === "actions") renderActionsPage();
+  if (page === "risk") {
+    renderRiskMatrixPage();
+    const rp = document.querySelector("#pgRisk .risk-page");
+    if (rp) rp.scrollTop = 0;
+  }
+  if (page === "config")  initConfigPage();
+}
+
+function toast(msg, type="info") {
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.textContent = msg;
+  document.getElementById("toasts").appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ── Switch user ───────────────────────────────────────────────────────────
+function switchUser(id) {
+  if (!id) return;
+  activeUserId  = id;
+  activeUserCtx = USERS[id];
+  chatHistory   = [];
+  emptyCleared  = false;
+  activeFilter  = "all";
+
+  document.getElementById("chatMessages").innerHTML =
+    '<div class="chat-empty" id="chatEmpty">' +
+      '<h4>Hello, ' + USERS[id].identity.name.split(" ")[0] + '!</h4>' +
+      '<div class="chat-suggestions" id="chatSuggestions">' +
+        '<div class="cs-label">Start here</div>' +
+        '<div class="cs-chips" id="chatSuggestionChips"></div>' +
+      '</div>' +
+    '</div>';
+  document.getElementById("chatMetaBadges").innerHTML = "";
+
+  renderProfile(USERS[id]);
+  document.getElementById("headerAv").textContent = USERS[id].identity.avatar;
+  updateActionStatsWidget();
+  updateActionsBadge();
+  if (document.getElementById("pgUsers").classList.contains("active")) renderUsersGrid();
+}
+
+// ── Profile ────────────────────────────────────────────────────────────────
+function formatAssignmentPhase(stage) {
+  if (!stage) return "—";
+  return stage.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function formatChildren(fam) {
+  if (!fam.hasChildren) return "No";
+  const ages = (fam.childrenAges || []).filter(Boolean);
+  return ages.length ? "Yes (ages " + ages.join(", ") + ")" : "Yes";
+}
+
+function formatPets(fam) {
+  if (!fam.petsDeclared) return { v: "Not provided yet", warn: true };
+  return fam.hasPets ? "Yes" : "No";
+}
+
+function buildProfileDetailsHtml(ctx) {
+  const { permissions: perm, corporateContext: corp, profile: p } = ctx;
+  const fam = p.family || {};
+  const tl  = p.timeline || {};
+
+  const blocks = [
+    {
+      section: "Assignment",
+      rows: [
+        { label: "Policy Type", value: perm.assignmentType, source: "Portal-APRO" },
+        { label: "Assignment Phase", value: formatAssignmentPhase(tl.assignmentStage), source: "APRO" },
+        { label: "Home Country", value: corp.homeCountry || "—", source: "Portal-APRO" },
+        { label: "Host Country", value: corp.hostCountry || "—", source: "Portal-APRO" },
+      ],
+    },
+    {
+      section: "Family",
+      rows: [
+        { label: "Partner", value: fam.hasPartner ? "Yes" : "No", source: "Portal-APRO" },
+        { label: "Children", value: formatChildren(fam), source: "Portal-APRO" },
+        { label: "Pets", value: formatPets(fam), source: "Expat" },
+      ],
+    },
+  ];
+
+  let html = "";
+  for (const b of blocks) {
+    html += '<div class="profile-section"><div class="profile-section-title">' + b.section + '</div>';
+    for (const row of b.rows) {
+      const vo = typeof row.value === "object" ? row.value : { v: row.value };
+      const cls = vo.warn ? " warn" : vo.ok ? " ok" : "";
+      html += '<div class="profile-row"><span class="pr-label">' + row.label +
+        (row.source ? '<span class="pr-source">' + row.source + '</span>' : '') +
+        '</span><span class="pr-value' + cls + '">' + (vo.v || vo) + '</span></div>';
+    }
+    html += '</div>';
+  }
+  return html;
+}
+
+function renderProfile(ctx) {
+  const { identity: id, permissions: perm, corporateContext: corp } = ctx;
+
+  document.getElementById("profileAv").textContent   = id.avatar;
+  document.getElementById("profileName").textContent = id.name;
+  document.getElementById("profileJob").textContent  = corp.department || "—";
+  document.getElementById("profileAssignment").textContent = perm.assignmentType;
+
+  renderJourneyStepper(ctx.id);
+
+  const chipsEl = document.getElementById("chatSuggestionChips");
+  if (chipsEl) {
+    chipsEl.innerHTML = SUGGESTED_QUESTIONS
+      .map(q => '<button class="cs-chip" data-q="' + q.replace(/"/g, '&quot;') + '">' + q + '</button>')
+      .join("");
+    chipsEl.querySelectorAll(".cs-chip").forEach(btn =>
+      btn.addEventListener("click", () => askQuestion(btn.dataset.q))
+    );
+  }
+}
+
+function handleSidebarNav(action) {
+  if (action === "actions") {
+    showPage("actions");
+    return;
+  }
+  const labels = { contacts: "Contacts", documents: "Documents", faq: "FAQ" };
+  toast((labels[action] || action) + " — Coming soon", "info");
+}
+
+function initChatSidebar() {
+  const sidebar = document.getElementById("chatSidebar");
+  const toggle = document.getElementById("sidebarToggle");
+  if (!sidebar || !toggle) return;
+
+  const mq = window.matchMedia("(max-width: 900px)");
+
+  function syncCollapsedForViewport() {
+    if (mq.matches) {
+      sidebar.classList.add("collapsed");
+      toggle.setAttribute("aria-expanded", "false");
+    } else {
+      sidebar.classList.remove("collapsed");
+      toggle.setAttribute("aria-expanded", "true");
+    }
+  }
+
+  syncCollapsedForViewport();
+  mq.addEventListener("change", syncCollapsedForViewport);
+
+  toggle.addEventListener("click", () => {
+    const isCollapsed = sidebar.classList.toggle("collapsed");
+    toggle.setAttribute("aria-expanded", isCollapsed ? "false" : "true");
+  });
+}
+
+function askQuestion(q) {
+  const inp = document.getElementById("chatInput");
+  inp.value = q;
+  inp.style.height = "auto";
+  inp.style.height = Math.min(inp.scrollHeight, 120) + "px";
+  send();
+}
+
+// ── Action helpers ─────────────────────────────────────────────────────────
+function getConditionFlags(ctx) {
+  const p = ctx.profile || {};
+  return {
+    hasChildren:      !!(p.family?.hasChildren),
+    hasPets:          !!(p.family?.hasPets),
+    hasTaxConcerns:   !!(p.financial?.concernedAboutTaxes),
+    hasImmigration:   !!(p.timeline?.immigrationInProgress),
+    needsTempHousing: !!(p.move?.needsTempHousing),
+    hasLanguageBarrier:!!(p.mobility?.languageBarrier),
+    needsIntercultural:!!(p.mobility?.languageBarrier || p.mobility?.firstAssignment),
+  };
+}
+
+function deadlineDate(moveDate, slot) {
+  const d = new Date(moveDate);
+  if (slot === "90-120d") { d.setDate(d.getDate() - 90); }
+  else if (slot === "60d"){ d.setDate(d.getDate() - 60); }
+  else if (slot === "30d"){ d.setDate(d.getDate() - 30); }
+  // arrival = moveDate itself
+  return d;
+}
+
+function fmtDate(d) {
+  return d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+}
+
+function daysUntil(d) {
+  return Math.ceil((d - TODAY) / 86400000);
+}
+
+function getUserTasks(userId) {
+  const ctx = USERS[userId];
+  const flags = getConditionFlags(ctx);
+  const actionData = USER_ACTIONS[userId];
+  const moveDate = actionData.moveDate;
+  const baseDone = new Set(actionData.completedIds);
+  const sessionDone = new Set(sessionCompleted[userId] || []);
+
+  return MASTER_TASKS
+    .filter(t => !t.condition || flags[t.condition])
+    .map(t => {
+      const dl     = deadlineDate(moveDate, t.slot);
+      const isDone = baseDone.has(t.id) || sessionDone.has(t.id);
+      const days   = daysUntil(dl);
+      let status   = "pending";
+      if (isDone)        status = "done";
+      else if (days < 0) status = "overdue";
+      return { ...t, deadline: dl, daysUntil: days, status };
+    });
+}
+
+function getActionStats(userId) {
+  const tasks = getUserTasks(userId);
+  return {
+    total:      tasks.length,
+    done:       tasks.filter(t => t.status === "done").length,
+    pending:    tasks.filter(t => t.status === "pending").length,
+    overdue:    tasks.filter(t => t.status === "overdue").length,
+    dueThisWeek:tasks.filter(t => t.status === "pending" && t.daysUntil >= 0 && t.daysUntil <= 7).length,
+  };
+}
+
+function openActionLog(filter) {
+  activeFilter = filter || "all";
+  showPage("actions");
+  document.querySelectorAll(".filter-pill").forEach(p => {
+    p.classList.toggle("active", p.dataset.filter === activeFilter);
+  });
+}
+
+// ── Action Stats Bar (above chat) ─────────────────────────────────────────
+function updateActionStatsWidget() {
+  if (!activeUserId) return;
+  const s = getActionStats(activeUserId);
+  document.getElementById("cab-total").textContent = s.total;
+  document.getElementById("cab-done").textContent  = s.done;
+  document.getElementById("cab-pend").textContent  = s.pending;
+  document.getElementById("chatActionBar").classList.add("visible");
+  renderJourneyStepper(activeUserId);
+  updateRiskWidget();
+  const soonEl = document.getElementById("cabDueSoon");
+  if (s.overdue > 0) {
+    soonEl.textContent = "⚠ " + s.overdue + " overdue";
+    soonEl.className = "cab-notify overdue";
+    soonEl.onclick = () => openActionLog("overdue");
+    soonEl.style.display = "inline-flex";
+  } else if (s.dueThisWeek > 0) {
+    soonEl.textContent = "⚡ " + s.dueThisWeek + " due this week";
+    soonEl.className = "cab-notify";
+    soonEl.onclick = () => openActionLog("pending");
+    soonEl.style.display = "inline-flex";
+  } else {
+    soonEl.style.display = "none";
+  }
+}
+
+function updateActionsBadge() {
+  if (!activeUserId) return;
+  const s = getActionStats(activeUserId);
+  const badge = document.getElementById("navActionsBadge");
+  if (s.overdue > 0) {
+    badge.textContent = s.overdue;
+    badge.style.display = "block";
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+// ── Actions Page render ────────────────────────────────────────────────────
+function setFilter(filter, el) {
+  activeFilter = filter;
+  document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
+  el.classList.add("active");
+  renderActionsPage();
+}
+
+function renderActionsPage() {
+  if (!activeUserId) {
+    document.getElementById("actionsList").innerHTML = '<div class="actions-empty">Select a user to view their action log.</div>';
+    return;
+  }
+  const ctx = USERS[activeUserId];
+  const actionData = USER_ACTIONS[activeUserId];
+  const tasks = getUserTasks(activeUserId);
+  const stats = getActionStats(activeUserId);
+
+  document.getElementById("actionsTitle").textContent    = ctx.identity.name + " — Action Log";
+  document.getElementById("actionsSubtitle").textContent = ctx.permissions.assignmentType + " · " + ctx.corporateContext.homeCountry + " → " + ctx.corporateContext.hostCountry;
+  document.getElementById("actionsMoveDate").textContent = "✈ Move date: " + fmtDate(new Date(actionData.moveDate));
+
+  document.getElementById("sum-total").textContent = stats.total;
+  document.getElementById("sum-done").textContent  = stats.done;
+  document.getElementById("sum-pend").textContent  = stats.pending;
+  document.getElementById("sum-over").textContent  = stats.overdue;
+
+  const filtered = tasks.filter(t => {
+    if (activeFilter === "all")          return true;
+    if (activeFilter === "overdue")      return t.status === "overdue";
+    if (activeFilter === "pending")      return t.status === "pending";
+    if (activeFilter === "done")         return t.status === "done";
+    if (activeFilter.startsWith("cat:")) return t.cat   === activeFilter.slice(4);
+    if (activeFilter.startsWith("own:")) return t.owner === activeFilter.slice(4);
+    return true;
+  });
+
+  if (!filtered.length) {
+    document.getElementById("actionsList").innerHTML = '<div class="actions-empty">No tasks match this filter.</div>';
+    return;
+  }
+
+  document.getElementById("actionsList").innerHTML = filtered.map(t => {
+    const catCls  = CAT_CLASS[t.cat] || "cat-destination";
+    const stCls   = t.status === "done" ? "st-done" : t.status === "overdue" ? "st-overdue" : "st-pending";
+    const stLabel = t.status === "done" ? "✓ Done" : t.status === "overdue" ? "⚠ Overdue" : "Pending";
+    const checkCls = t.status === "done" ? "task-check checked" : "task-check";
+    const cardCls  = t.status === "done" ? "task-card done" : t.status === "overdue" ? "task-card overdue" : "task-card";
+    const daysLabel = t.status === "done" ? "" :
+      t.daysUntil < 0  ? "Overdue by " + Math.abs(t.daysUntil) + " day" + (Math.abs(t.daysUntil)===1?"":"s") :
+      t.daysUntil === 0 ? "Due today!" :
+      "In " + t.daysUntil + " day" + (t.daysUntil===1?"":"s");
+    const dlCls = (t.status === "overdue" && t.status !== "done") ? "task-deadline overdue" : "task-deadline";
+
+    const ownerKey = (t.owner||"Expat").toLowerCase().replace(" ","");
+    const ownerCls = ownerKey === "expat" ? "own-expat" : ownerKey === "gm" ? "own-gm" : ownerKey === "vialto" ? "own-vialto" : ownerKey === "k2" ? "own-k2" : "own-netexpat";
+
+    return '<div class="' + cardCls + '" id="tc-' + activeUserId + '-' + t.id + '">' +
+      '<div class="' + checkCls + '" onclick="toggleTask(' + t.id + ')" title="Mark as done"></div>' +
+      '<div class="task-body">' +
+        '<div class="task-title">' + t.task + '</div>' +
+        '<div class="task-footer">' +
+          '<span class="task-cat ' + catCls + '">' + t.cat + '</span>' +
+          '<span class="task-owner ' + ownerCls + '">' + (t.owner||"Expat") + '</span>' +
+          '<span class="task-status ' + stCls + '">' + stLabel + '</span>' +
+          (t.status !== "done" ? '<span class="' + dlCls + '">📅 ' + fmtDate(t.deadline) + (daysLabel ? " · " + daysLabel : "") + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="task-order">#' + t.order + '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function toggleTask(taskId) {
+  if (!activeUserId) return;
+  if (!sessionCompleted[activeUserId]) sessionCompleted[activeUserId] = new Set();
+  const baseDone = new Set(USER_ACTIONS[activeUserId].completedIds);
+  const sessionDone = sessionCompleted[activeUserId];
+
+  if (baseDone.has(taskId) || sessionDone.has(taskId)) {
+    sessionDone.delete(taskId);
+    USER_ACTIONS[activeUserId].completedIds = USER_ACTIONS[activeUserId].completedIds.filter(id => id !== taskId);
+    toast("Task marked as incomplete", "info");
+  } else {
+    sessionDone.add(taskId);
+    toast("Task marked as completed ✓", "ok");
+  }
+  updateActionStatsWidget();
+  updateActionsBadge();
+  renderActionsPage();
+}
+
+// ── Related tasks helpers ──────────────────────────────────────────────────
+const KEYWORD_MAP = [
+  { keys:["visa","passport","immigration","vialto","document"],  cats:["Immigration"] },
+  { keys:["school","education","children","kids","enroll"],       cats:["Destination Services"], ids:[15] },
+  { keys:["tax","equity","payroll","salary","compensation"],      cats:["Tax","Payroll"] },
+  { keys:["housing","apartment","rent","temporary","accommodation"],cats:["Destination Services"], ids:[20,25,29] },
+  { keys:["ship","goods","furniture","belongings","hhg","pack"],   cats:["Departure","Destination Services"], ids:[14,19,30] },
+  { keys:["health","medical","insurance","cigna","hospital"],      cats:["Healthcare"] },
+  { keys:["bank","account","finance","money"],                     cats:["Destination Services"], ids:[26] },
+  { keys:["pet","dog","cat","animal"],                             cats:["Destination Services"], ids:[16] },
+  { keys:["language","training","intercultural","culture"],        cats:["Destination Services"], ids:[11,31] },
+  { keys:["offer","letter","assignment","sign","loa","docusign"],  cats:["Offer","Letter of Assignment"] },
+  { keys:["look","see","trip","neighborhood","area","location"],   cats:["Destination Services"], ids:[9,12,13] },
+  { keys:["onboard","manager","team","local"],                     cats:["Onboarding"] },
+  { keys:["move","relocat","flight","ticket","travel"],            cats:["Travel","Departure"] },
+];
+
+function getRelatedTasks(question) {
+  if (!activeUserId) return [];
+  const q = question.toLowerCase();
+  const tasks = getUserTasks(activeUserId).filter(t => t.status !== "done");
+  const matchedIds = new Set();
+  for (const rule of KEYWORD_MAP) {
+    if (rule.keys.some(k => q.includes(k))) {
+      tasks.forEach(t => {
+        if (rule.cats.includes(t.cat) || (rule.ids && rule.ids.includes(t.id))) matchedIds.add(t.id);
+      });
+    }
+  }
+  return tasks.filter(t => matchedIds.has(t.id)).slice(0, 3);
+}
+
+function renderRelatedTasksCard(related) {
+  if (!related.length) return "";
+  const rows = related.map(t => {
+    const dlabel = t.daysUntil < 0
+      ? "Overdue " + Math.abs(t.daysUntil) + "d"
+      : t.daysUntil === 0 ? "Due today"
+      : "In " + t.daysUntil + "d";
+    return '<div class="ra-item">' +
+      '<div class="ra-dot ' + t.status + '"></div>' +
+      '<div class="ra-text">' + t.task + '</div>' +
+      '<div class="ra-days ' + t.status + '">' + dlabel + '</div>' +
+    '</div>';
+  }).join("");
+  return '<div class="related-actions">' +
+    '<div class="ra-header">Related actions in your log ' +
+      '<button class="ra-link" onclick="showPage(\'actions\')">View all →</button>' +
+    '</div>' + rows + '</div>';
+}
+
+// ── Policy knowledge base ──────────────────────────────────────────────────
+const POLICY_KNOWLEDGE = {
+  LTA: `SOURCE: 2024 Global Mobility LTA Policy V3.0 — AB InBev (effective 01/01/2026)
+
+ELIGIBILITY & DURATION
+- Senior Leadership (Bands 0–III) and Critical Skills (Band IV, People Bet): 3 years, max 5 years.
+- Company may shorten or terminate the assignment at any time.
+
+GOVERNANCE
+- Host PBP submits "Request for Expat Assignment" before any package is prepared.
+- Assignee formally accepts via signature of the Letter of Assignment (LOA).
+- Where this policy and the LOA differ, the LOA governs.
+
+PRE-ASSIGNMENT TRIP (LOOK & SEE)
+- Up to 5 days for assignee and partner. Costs follow ZBB Travel Policy.
+- HOW TO BOOK: Round-trip airfare is arranged via Egencia (company travel platform) following the Global ZBB Travel Policy. Coordinate dates with Global Mobility / host PBP and your DSP (K2) so the trip aligns with housing and school search. Hotels and ground transport follow ZBB Travel Policy.
+- DSP (Destination Service Provider, e.g. K2) assists with home search, school enrollment, settling-in.
+- LEASE SIGNING: Assignee CANNOT sign a lease without consulting Global Mobility on TIMING (e.g. relative to visa approval). GM approves whether/when signing may occur — GM does NOT review or approve lease content or rental terms. K2/DSP handles housing search and lease substance.
+- Children join only if: school entrance exam required, or sequential assignment without local childcare support.
+
+SETTLING-IN SERVICES
+- Initiated after LOA is signed. DSP helps with bank account, driver's license, local registrations.
+
+LANGUAGE TRAINING
+- Up to 60 hours per person over age 4, over 4 years — host country primary language only.
+- Non-transferable between family members. Alternative vendor reimbursed up to ABI's contracted amount.
+
+CULTURAL TRAINING
+- Online tool provided. Additional in-person training requires Global Mobility approval.
+
+PARTNER SUPPORT
+- Job search, career counselling, education, wellness, social connection. Managed through RMC.
+- ABI does NOT compensate loss of partner/spouse income — Partner Support is advisory, not income replacement.
+
+SPOUSE / PARTNER WORK AUTHORIZATION (US LTA)
+- ABI policy does NOT reference EAD (Employment Authorization Document). NEVER mention EAD — it is not in the LTA policy.
+- For typical ABI US LTA assignments (L-1 classification): accompanying spouse is generally authorized to work in the US without a separate EAD application.
+- For immigration specifics beyond policy, refer to Vialto / immigration counsel — not generic internet immigration guidance.
+
+TEMPORARY LIVING
+- Max 45 days (home + host combined). Furnished apartment if available; otherwise hotel per ZBB Travel Policy.
+- Meals reimbursed at 70% per diem (adult) / 35% (child ≤12) only in accommodation without cooking facilities.
+- Must NOT overlap with start of a long-term lease.
+
+HOUSEHOLD GOODS — SURFACE SHIPMENT (CONTAINER)
+- Assignee only → 20ft container.
+- Assignee + 1 → 20ft container.
+- Assignee + 2 or more → 40ft container.
+- CONTAINER SIZE IS FIXED BY POLICY. No exceptions. K2 and HR cannot adjust the container size.
+- NOT covered: motor vehicles, bulky/heavy items (piano, pool table), art/antiques, alcohol.
+- One shipment only. Split shipment only if total cost ≤ full shipment cost.
+
+CASH IN LIEU OF SURFACE SHIPMENT — §6.3.3
+- Standard policy option — NOT an exception. No GM approval required. Not uncommon.
+- ABI pays a cash allowance (amount provided by Global Mobility) to buy/rent furniture in host country.
+- Paid net via host payroll after relocation.
+- Excess baggage benefit still applies if cash in lieu is chosen.
+- Storage in home country and furniture rental in host country are NOT covered if cash in lieu is chosen.
+- Cash in lieu is NOT available upon repatriation (surface shipment provided instead).
+
+STORAGE
+- Company covers storage of items left in home country for duration of assignment.
+- Does NOT apply if cash in lieu was chosen.
+
+EXCESS BAGGAGE — §6.3.4
+- USD 200 per accompanying family member (applies regardless of container or cash in lieu choice).
+
+PET SHIPMENT — §6.3.5
+- Up to USD 2,000 total REIMBURSEMENT for all pets combined — covers transport, quarantine, documents, vaccinations.
+- This is a reimbursement cap, NOT a spending limit: assignee may spend more; only eligible costs up to USD 2,000 are reimbursed. No cash payout or cash in lieu for pets.
+- Cannot be used for employee/family flights. Assignee manages all logistics.
+- Optional benefit — never include "When to escalate" for pet questions.
+
+HOUSEHOLD GOODS INSURANCE IN TRANSIT
+- Company covers insurance up to USD 250,000 combined valuation. Assignee pays any additional premium.
+
+HOUSING SUBSIDY — §9.2
+- ABI provides a fixed Housing Subsidy based on job level and family size.
+- Amount is confirmed in the Letter of Assignment (LOA) — SET BY ABI, NOT by K2.
+- HOW VALUE IS DETERMINED: Third-party market data for unfurnished expatriate housing in the host location, adjusted for job level and family size — fixed in the LOA.
+- K2 (DSP) assists with finding and securing accommodation. K2 does NOT determine the budget.
+- NOT intended to fully cover housing costs. Assignee may choose any housing and may personally top up above the subsidy — rent does NOT need to "match" or "align with" the subsidy amount.
+- If actual rent < subsidy: only actual rent is paid/reimbursed — assignee does NOT keep the unused balance.
+- Subsidy remains fixed unless banding or family size increases.
+- Paid via host payroll, directly to landlord, or through RMC depending on host location.
+- NOT covered: security deposit, excess rent, utilities, telephone.
+- Assignee strongly discouraged from purchasing property in host country.
+- NEVER suggest escalation to Global Mobility for standard housing questions (amount, determination, cheaper rent, landlord disputes on standard lease).
+
+INTEGRATION ALLOWANCE — §9.3
+- One month net host base salary, maximum USD 10,000 — one-time net payment via host payroll.
+- Covers miscellaneous relocation expenses: painting, rewiring, furniture assembly, minor appliances, clothing for new climate, banking/notary fees, cable/internet installation, disposal of goods, etc.
+
+SCHOOLING SUBSIDY — §8.1
+- Company recommends local public school first.
+- ⚠️ NO SCHOOLING SUBSIDY FOR HOST = UNITED STATES. This is an absolute exclusion with no exceptions.
+- If the user's host country is the United States, ALWAYS state clearly: "The schooling subsidy does not apply to your assignment — the policy explicitly excludes US locations (§8.1)."
+- Eligible children: ages 4 through end of secondary school.
+- Amount confirmed in LOA — maximum/cap amount. Actual costs reimbursed up to subsidy; excess paid by assignee.
+- NOT covered: nursery, childcare, university/college, post-secondary.
+- Extra costs (meals, books, transport, exam fees, school uniforms): assignee's responsibility.
+- For ANY schooling-related question when HOST = US: state first that schooling subsidy does NOT apply — uniforms and all school costs are assignee responsibility.
+- Subsidy starts only once family arrives in host with all legally compliant permits.
+
+CHILDCARE ALLOWANCE
+- US/NYC: USD 15,000 net/year per child (NYC); USD 10,000 net/year per child (other US).
+- All other locations: USD 10,000 gross/year per accompanying child aged 0–4 (or until compulsory school age in host).
+- No allowance if child stays in home country.
+
+HOME LEAVE — §8.3.1
+- 1 round-trip ticket per accompanying family member per 12 months on assignment.
+- Unused entitlement in a 12-month period is generally forfeited — tickets may be transferable if unused; coordinate via company travel process (Egencia / ZBB Travel Policy).
+- Hotel, meals, transport during home leave: NOT covered.
+- Children under 19 not accompanying: 1 round-trip/year to visit assignee in host.
+- Closed entitlement — never include "When to escalate" for standard home leave questions.
+
+EMERGENCY LEAVE
+- Airfare provided for death or serious illness of immediate family member. Contact Global Mobility for other emergencies.
+
+BASE SALARY
+- Determined by host position/banding using Rewards policies; paid gross.
+- Default: fixed in host currency and paid via host payroll.
+- Exception: US outbound and Nigeria outbound assignments receive base salary in HOME currency (not host currency).
+- Merit reviews follow host country process.
+
+VALUE EQUALIZATION ALLOWANCE
+- If home net salary > host net salary (after estimated taxes): Company protects home net pay.
+- Amount fixed in home currency; converted monthly at GM Exchange Rate; never below zero.
+- Not carried into future compensation proposals.
+
+BONUS
+- Home country bonus scheme applies; targets set by host line manager; paid via host payroll.
+- Bonus is tax equalized — hypothetical home country tax withheld from gross bonus.
+- RSUs/PSUs/options granted with or on bonus are NOT tax equalized — LTI taxes are assignee personal responsibility (see Long-Term Incentives). When answering bonus questions, always separate cash bonus tax equalization from equity/LTI treatment.
+
+LONG-TERM INCENTIVES (RSUs, PSUs, Options)
+- Per home country compensation standards. All LTI taxes are the ASSIGNEE's personal responsibility. No tax equalization on LTIs — including RSUs vesting during assignment.
+
+TAX ASSISTANCE
+- Company engages designated tax provider (Vialto). Assignee MUST use the Company-designated provider.
+- Required: tax exit consultation (home) + tax entrance consultation (host). Equity consultation if holding RSUs/options.
+- Company covers tax return preparation fees (home + host) for duration of assignment + up to 3 years post or last year of dual-country RSU vesting.
+- NOT covered: personal tax planning, partner's separate income tax returns (unless legally required).
+- Personal income taxes (dividends, capital gains, rental income, spousal income): assignee's responsibility.
+- Financial/legal advice: reimbursement up to USD 3,500 (personal finances); USD 1,500 one-time (will preparation).
+
+HEALTH INSURANCE
+- Company ensures coverage for assignee and family throughout assignment.
+- Stays on home plan where possible; if insufficient, enrolled in host plan.
+- International healthcare covers host and home countries only — not third countries.
+
+END OF ASSIGNMENT — REPATRIATION
+- Same household goods rules as expatriation. Cash in lieu NOT available on repatriation.
+- Temporary living: up to 30 days (home + host combined).
+- Re-integration Allowance: one month net host base salary, max USD 10,000 (not applicable for gross misconduct or voluntary resignation).
+- Tax filing assistance: repatriation year + up to 3 years post or last year of dual-country RSU vesting.
+- Visa/work permit cancelled within 30 days of assignment end.
+- Schooling subsidy may continue through end of school term (pending approval).
+
+VOLUNTARY RESIGNATION
+- All assignment benefits cease on last day.
+- Assignee covers own repatriation costs.
+- If resignation in first year: assignee must REPAY all relocation costs.
+
+AGENT RULES — WHAT TO ALWAYS STATE CORRECTLY
+- Housing Subsidy is a fixed amount set by ABI, confirmed in the LOA. K2 (DSP) assists with home finding only.
+- Cash in lieu is a standard option — not an exception, not uncommon, no GM approval required.
+- Container size is fixed by policy — no exceptions, no adjustments by K2 or HR.
+- The LOA governs when it differs from this policy.
+
+AGENT RULES — WHAT TO NEVER SAY
+- NEVER say housing is "fully covered" — it is a subsidy, not full coverage.
+- NEVER say "contact K2 to confirm the housing budget" — the amount is set by ABI and stated in the LOA.
+- NEVER suggest container size can be adjusted or that exceptions are possible.
+- NEVER say cash in lieu is uncommon or requires GM approval.
+- NEVER mention EAD for spouse/partner work — not in ABI LTA policy; use L-1 dependent work authorization for US LTA only when relevant.
+- NEVER suggest escalation to Global Mobility for: container size, housing subsidy amount or determination, cash in lieu option, home leave, integration allowance, excess baggage, pet shipment, partner income loss, Look & See booking, school uniforms, best neighborhoods, or temporary living duration. These are CLOSED policy rules or optional benefits.
+- NEVER include a "When to escalate" section for the items above — omit the section entirely.
+- NEVER tell assignee to keep pet costs "under USD 2,000" as a spending cap — it is reimbursement only.
+- NEVER say rent must "align with" or "match" the housing subsidy — assignee may top up personally.
+- NEVER say Global Mobility reviews or approves lease content — GM approves signing timing only; K2 handles lease substance.
+- NEVER use words like "typically", "usually", "generally", "may", "might" when the policy states an explicit rule or value. State the rule as fact.
+- NEVER say "if this doesn't work for you, talk to Mobility / K2" — this implies exceptions exist where there are none.
+- NEVER imply the assignee can negotiate a larger container, higher housing subsidy, or longer temporary living period.`,
+
+  STA: null,
+  IA: null,
+  COMMUTER: null,
+};
+
+// ── System prompt ──────────────────────────────────────────────────────────
+function buildSystemPrompt(ctx, question) {
+  const { identity: id, permissions: perm, corporateContext: corp, profile: p } = ctx;
+  const fam=p.family||{}, mob=p.mobility||{}, fin=p.financial||{}, tl=p.timeline||{}, mv=p.move||{};
+  const otherTypes = ALL_TYPES.filter(t => t !== perm.assignmentType.toLowerCase()).map(t => t.toUpperCase()).join(", ");
+  const lines = ["Name: "+id.name,"Assignment type: "+perm.assignmentType+" ONLY","Authorized policies: "+perm.policiesAllowed.join(", "),"Home: "+corp.homeCountry,"Host: "+corp.hostCountry,"Stage: "+(tl.assignmentStage||"unknown")];
+  if (fam.hasPartner) lines.push("Has partner: yes");
+  if (fam.hasChildren) lines.push("Has children: yes, ages "+fam.childrenAges.join(", ")+" — school search: "+(mv.needsSchoolSearch?"needed":"not needed"));
+  if (fam.hasPets) lines.push("Has pets: yes");
+  // Host-country-specific policy exclusions — injected as hard flags for the AI
+  const hostUpper = (corp.hostCountry||"").toUpperCase();
+  if (hostUpper.includes("UNITED STATES") || hostUpper.includes("USA") || hostUpper.includes("US")) {
+    lines.push("⚠️ HOST = UNITED STATES: Schooling Subsidy does NOT apply (§8.1 — US explicitly excluded). Childcare Allowance is net (§8.2 — US/NYC rates). NEVER tell this user they may receive a schooling subsidy.");
+  }
+  if (mob.firstAssignment) lines.push("FIRST ASSIGNMENT — provide step-by-step guidance");
+  if (mob.languageBarrier) lines.push("Language barrier: yes — simple language only");
+  if (fin.concernedAboutTaxes) lines.push("Tax concerns: yes — flag tax implications");
+  if (tl.immigrationInProgress && !tl.visaApproved) lines.push("CRITICAL: Visa NOT yet approved — always add immigration warnings");
+
+  // Inject overdue action context
+  const overdueTasks = getUserTasks(activeUserId).filter(t => t.status === "overdue");
+  if (overdueTasks.length) {
+    lines.push("OVERDUE ACTIONS (mention if relevant): " + overdueTasks.map(t => t.task).join(" | "));
+  }
+
+  if (question && /key steps|expatriation process/i.test(question)) {
+    const tasks = getUserTasks(activeUserId);
+    const phaseLabels = JOURNEY_STEPS.map(s => s.label).join(" → ");
+    lines.push(
+      "EXPATRIATION STEPS REQUEST: Give a SHORT summary of the assignment journey (" + phaseLabels + ") " +
+      "and highlight the user's next pending/overdue actions from their action log. Do not list every task — " +
+      "group by phase and keep it scannable.\nACTION LOG:\n" +
+      tasks.map(t => "- [" + t.status.toUpperCase() + "] " + t.task + " (due " + fmtDate(t.deadline) + ")").join("\n")
+    );
+  }
+
+  return `You are an enterprise-grade Global Mobility Concierge — a senior advisor at a multinational corporation.
+
+════════════════════════════
+IDENTITY LOCK — MANDATORY
+════════════════════════════
+User: ${id.name} | Type: ${perm.assignmentType} ONLY
+Policies: ${perm.policiesAllowed.join(", ")}
+HARD RULES:
+1. ONLY answer for ${perm.assignmentType} assignment type.
+2. If asked about ${otherTypes}: refuse with "I can only provide guidance for ${perm.assignmentType} assignments."
+3. NEVER use other assignment type knowledge.
+
+════════════════════════════
+RESPONSE FORMAT (MANDATORY)
+════════════════════════════
+**Answer:** [1–2 sentences. Be direct and assertive. State exact policy values (numbers, limits, rules) — no hedging, no "typically", no "usually".]
+
+**What this means for you:**
+- key implication (1 line)
+- key implication (1 line)
+
+**Next steps:**
+- action (1 line)
+- action (1 line)
+
+**When to escalate:** [OMIT THIS ENTIRE SECTION unless the question involves immigration legal complications, tax residency edge cases, payroll discrepancies, or a genuine policy gap. NEVER include for: pets, home leave, housing subsidy (amount/determination/cheaper rent), container size, cash in lieu, partner support/income loss, Look & See booking, school uniforms, best neighborhoods, excess baggage, integration allowance, temporary living — omit the section completely rather than writing "no escalation needed".]
+
+**📋 Policy reference:** §[section number] [section name] — 2024 Global Mobility LTA Policy V3.0
+
+RULES: Max 2 sentences answer. Max 3 bullets/section. No filler. No long paragraphs.
+
+ASSERTIVENESS RULE: When the policy defines a value, rule, or limit EXPLICITLY — state it as fact. Say "Your entitlement is X" not "typically X". Say "The policy does not cover Y" not "Y may not be covered". Never soften a closed policy rule.
+
+ESCALATION PROHIBITION — CRITICAL:
+NEVER suggest contacting Global Mobility, K2, DSP, or HR to negotiate, review, or request exceptions for ANY of the following (these are closed policy rules with no exceptions):
+- Container size (20ft or 40ft — fixed by family size, non-negotiable)
+- Housing Subsidy amount or how it is determined (set by ABI in the LOA — K2 does not change this)
+- Choosing housing below subsidy / personal top-up above subsidy
+- Cash in lieu availability (standard option, no approval needed)
+- Schooling subsidy eligibility, school uniforms, or any schooling cost when rules are defined
+- Home leave entitlement (1 trip/person/12 months)
+- Integration Allowance amount (1 month net salary, max USD 10,000)
+- Pet shipment reimbursement (USD 2,000 cap — reimbursement only, not spending limit)
+- Partner income loss (not covered — Partner Support is advisory only)
+- Look & See booking process (book via Egencia / ZBB Travel Policy)
+- Lease content review (K2 handles substance; GM only approves signing timing)
+- Excess baggage cap (USD 200/person)
+- Temporary living duration (45 days max)
+NEVER mention EAD for spouse work — not in ABI policy; for US LTA state L-1 spouse work authorization when asked.
+Only escalate to Global Mobility for: immigration complications, tax residency edge cases, payroll discrepancies, genuine policy gaps, or situations explicitly marked as "case-by-case" in the policy.
+
+CITATION RULE: ALWAYS include "📋 Policy reference:" with the exact section number and name when the answer is grounded in the AB InBev policy (e.g. §9.2 Housing Subsidy, §6.3.1 Surface Shipment, §8.1 Schooling Subsidy). List all relevant sections if the answer spans multiple. Only cite sections confirmed in the policy knowledge — never fabricate. If question is purely procedural or out of policy scope, omit the reference line.
+
+After your full response, add a line containing only "---" followed by exactly 2-3 follow-up questions the user is likely to ask next. Each on its own line starting with "?? ". These must be short (max 10 words), natural, and specific to this user's situation. Example:
+---
+?? How long does the visa process usually take?
+?? What documents do I need to prepare now?
+
+════════════════════════════
+POLICY RULES — ${perm.assignmentType}
+════════════════════════════
+${POLICY_KNOWLEDGE[perm.assignmentType] || "No internal policy loaded for this assignment type — use general market practice only and always state this is general practice, not confirmed policy. NEVER invent values, dates, or thresholds."}
+
+════════════════════════════
+USER PROFILE
+════════════════════════════
+${lines.map(l => "  • " + l).join("\n")}`;
+}
+
+// ── Scope check ────────────────────────────────────────────────────────────
+function checkScope(question) {
+  const u = USERS[activeUserId];
+  const type = u.permissions.assignmentType.toLowerCase();
+  const q = question.toLowerCase();
+  // Use word-boundary regex to avoid false positives from substrings
+  // e.g. "status" must NOT trigger "sta", "via" must NOT trigger "ia"
+  const bad = ALL_TYPES.filter(t => t !== type && new RegExp("\\b" + t + "\\b").test(q));
+  if (bad.length) return "Your account is set up for " + u.permissions.assignmentType + " assignments. I can only answer questions within your authorized assignment type. For " + bad.map(t => t.toUpperCase()).join(", ") + " questions, please contact your Global Mobility team.";
+  return null;
+}
+
+// ── Chat helpers ────────────────────────────────────────────────────────────
+function escHtml(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function appendMsg(role, html) {
+  const cm = document.getElementById("chatMessages");
+  const el = document.getElementById("chatEmpty"); if (el) { el.remove(); emptyCleared = true; }
+  const wrap = document.createElement("div"); wrap.className = "msg " + role;
+  const av   = document.createElement("div"); av.className   = "msg-av";
+  av.textContent = role === "user" ? USERS[activeUserId].identity.avatar : "🤖";
+  const bub  = document.createElement("div"); bub.className  = "msg-bub";
+  bub.innerHTML  = role === "bot" ? html : escHtml(html);
+  wrap.appendChild(av); wrap.appendChild(bub);
+  cm.appendChild(wrap); cm.scrollTop = cm.scrollHeight;
+  return bub;
+}
+
+function showTyping() {
+  const cm = document.getElementById("chatMessages");
+  const el = document.getElementById("chatEmpty"); if (el) { el.remove(); emptyCleared = true; }
+  const wrap = document.createElement("div"); wrap.className = "msg bot"; wrap.id = "typing";
+  const av   = document.createElement("div"); av.className   = "msg-av"; av.textContent = "🤖";
+  const bub  = document.createElement("div"); bub.className  = "msg-bub";
+  bub.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  wrap.appendChild(av); wrap.appendChild(bub);
+  cm.appendChild(wrap); cm.scrollTop = cm.scrollHeight;
+}
+function removeTyping() { document.getElementById("typing")?.remove(); }
+
+async function readProxyStream(res, botBub, cm) {
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let full = "";
+  let buf = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split("\n");
+    buf = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      try {
+        const payload = JSON.parse(line.slice(6).trim());
+        if (payload.error) throw new Error(payload.error);
+        const delta = payload.delta || payload.choices?.[0]?.delta?.content;
+        if (delta) {
+          full += delta;
+          const si = full.indexOf("\n---\n");
+          botBub.innerHTML = safeMarkdown(si !== -1 ? full.slice(0, si) : full);
+          cm.scrollTop = cm.scrollHeight;
+        }
+      } catch (e) {
+        if (e.message && !e.message.includes("JSON")) throw e;
+      }
+    }
+  }
+  return full;
+}
+
+function finishBotMessage(full, botBub, cm, question, ctx, related) {
+  const sepIdx = full.indexOf("\n---\n");
+  let cleanFull = full;
+  let followups = [];
+  if (sepIdx !== -1) {
+    cleanFull = full.slice(0, sepIdx).trim();
+    followups = full.slice(sepIdx + 5).split("\n")
+      .map(l => l.replace(/^\?\?\s*/, "").trim())
+      .filter(l => l.length > 0 && l.length < 120);
+  }
+  botBub.innerHTML = safeMarkdown(cleanFull);
+  if (followups.length) {
+    const wrap = document.createElement("div");
+    wrap.className = "followup-wrap";
+    const lbl = document.createElement("div");
+    lbl.className = "followup-label";
+    lbl.textContent = "Continue exploring";
+    wrap.appendChild(lbl);
+    followups.forEach(q => {
+      const btn = document.createElement("button");
+      btn.className = "followup-chip";
+      btn.textContent = q;
+      btn.addEventListener("click", () => askQuestion(q));
+      wrap.appendChild(btn);
+    });
+    cm.appendChild(wrap);
+  }
+  chatHistory.push({ user: question, assistant: cleanFull });
+  if (chatHistory.length > 20) chatHistory.shift();
+  document.getElementById("chatMetaBadges").innerHTML =
+    '<span class="meta-badge mb-policy">' + ctx.permissions.assignmentType + "</span>";
+  const relatedHtml = renderRelatedTasksCard(related);
+  if (relatedHtml) {
+    const card = document.createElement("div");
+    card.innerHTML = relatedHtml;
+    cm.appendChild(card.firstChild);
+    cm.scrollTop = cm.scrollHeight;
+  }
+  return cleanFull;
+}
+
+async function deliverOfflineAnswer(question, ctx, related, cm) {
+  window.__lastChatOffline = true;
+  updateChatModeBadge();
+  removeTyping();
+  const host = ctx.corporateContext.hostCountry || "";
+  const mock = typeof window.pickDemoMockResponse === "function"
+    ? window.pickDemoMockResponse(question, host)
+    : "**Answer:** Offline policy demo — please refresh the page if this persists.";
+  const botBub = appendMsg("bot", "");
+  finishBotMessage(mock, botBub, cm, question, ctx, related);
+}
+
+async function sendViaOffline(question, ctx, related, cm) {
+  try {
+    const res = await fetch(OFFLINE_CHAT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question,
+        hostCountry: ctx.corporateContext.hostCountry,
+      }),
+    });
+    if (!res.ok) throw new Error("offline http " + res.status);
+    removeTyping();
+    const botBub = appendMsg("bot", "");
+    const full = await readProxyStream(res, botBub, cm);
+    if (!full || !full.trim()) throw new Error("empty stream");
+    finishBotMessage(full, botBub, cm, question, ctx, related);
+  } catch (_) {
+    await deliverOfflineAnswer(question, ctx, related, cm);
+  }
+}
+
+async function sendViaProxy(question, ctx, related, cm) {
+  window.__lastChatOffline = false;
+  const res = await fetch(PROXY_CHAT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, userId: activeUserId, sessionId: "demo-v3" }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "HTTP " + res.status);
+  }
+  removeTyping();
+  const botBub = appendMsg("bot", "");
+  const full = await readProxyStream(res, botBub, cm);
+  finishBotMessage(full, botBub, cm, question, ctx, related);
+}
+
+async function sendViaDirect(question, ctx, related, cm, token) {
+  window.__lastChatOffline = false;
+  const messages = [{ role: "system", content: buildSystemPrompt(ctx, question) }];
+  for (const t of chatHistory) {
+    messages.push({ role: "user", content: t.user });
+    messages.push({ role: "assistant", content: t.assistant });
+  }
+  messages.push({ role: "user", content: question });
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+    body: JSON.stringify({ model: GITHUB_MODEL, temperature: 0.4, max_tokens: 2048, stream: true, messages }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const msg = err.error?.message || "HTTP " + res.status;
+    if (res.status === 401) throw new Error("401_UNAUTHORIZED");
+    throw new Error(msg);
+  }
+  removeTyping();
+  const botBub = appendMsg("bot", "");
+  const full = await readProxyStream(res, botBub, cm);
+  finishBotMessage(full, botBub, cm, question, ctx, related);
+}
+
+// ── Send ────────────────────────────────────────────────────────────────────
+async function send() {
+  const chatInput  = document.getElementById("chatInput");
+  const sendBtn    = document.getElementById("sendBtn");
+  const cm         = document.getElementById("chatMessages");
+  const question   = chatInput.value.trim();
+  if (!question || chatBusy) return;
+  if (!activeUserId) { toast("Please select a user first.", "err"); return; }
+
+  if (window.demoPresentationActive && typeof window.demoSendMessage === "function") {
+    chatInput.value = "";
+    chatInput.style.height = "auto";
+    await window.demoSendMessage(question);
+    return;
+  }
+
+  // Standalone ZIP (file://): built-in chat — no server or external CDN required
+  if (!IS_SERVED) {
+    const violation = checkScope(question);
+    if (violation) {
+      chatInput.value = "";
+      appendMsg("bot", "<p>" + escHtml(violation) + "</p>");
+      return;
+    }
+    chatBusy = true;
+    sendBtn.disabled = true;
+    chatInput.value = "";
+    chatInput.style.height = "auto";
+    appendMsg("user", question);
+    showTyping();
+    const ctx = USERS[activeUserId];
+    const related = getRelatedTasks(question);
+    const cm = document.getElementById("chatMessages");
+    try {
+      await deliverOfflineAnswer(question, ctx, related, cm);
+    } finally {
+      chatBusy = false;
+      sendBtn.disabled = false;
+      cm.scrollTop = cm.scrollHeight;
+    }
+    return;
+  }
+
+  const violation = checkScope(question);
+  if (violation) {
+    chatInput.value = "";
+    sendBtn.disabled = true;
+    appendMsg("bot", '<p>' + escHtml(violation) + '</p>');
+    setTimeout(() => { sendBtn.disabled = false; }, 800);
+    return;
+  }
+
+  chatBusy = true; sendBtn.disabled = true;
+  chatInput.value = ""; chatInput.style.height = "auto";
+  appendMsg("user", question);
+  showTyping();
+
+  const ctx = USERS[activeUserId];
+  const related = getRelatedTasks(question);
+  const token = getToken();
+
+  try {
+    if (chatMode === "offline") {
+      await sendViaOffline(question, ctx, related, cm);
+    } else if (IS_SERVED && chatMode !== "direct") {
+      try {
+        await sendViaProxy(question, ctx, related, cm);
+      } catch (proxyErr) {
+        await sendViaOffline(question, ctx, related, cm);
+        toast("Switched to offline policy demo.", "info");
+      }
+    } else if (token) {
+      try {
+        await sendViaDirect(question, ctx, related, cm, token);
+      } catch (directErr) {
+        if (IS_SERVED) {
+          await sendViaOffline(question, ctx, related, cm);
+          toast("Direct API failed — using offline demo.", "info");
+        } else throw directErr;
+      }
+    } else if (IS_SERVED) {
+      await sendViaOffline(question, ctx, related, cm);
+    } else {
+      removeTyping();
+      const modal = document.getElementById("accessModal");
+      modal.style.display = "flex";
+      setTimeout(() => document.getElementById("accessCodeInput").focus(), 100);
+    }
+  } catch(err) {
+    removeTyping();
+    if (IS_SERVED && chatMode !== "direct") {
+      try {
+        await sendViaOffline(question, ctx, related, cm);
+        toast("Offline policy demo — no external API required.", "info");
+        chatBusy = false; sendBtn.disabled = false;
+        cm.scrollTop = cm.scrollHeight;
+        return;
+      } catch (offlineErr) {
+        err = offlineErr;
+      }
+    }
+    if (err.message === "401_UNAUTHORIZED") {
+      appendMsg("bot",
+        '<p style="color:var(--red)">⚠ Access code rejected or expired.</p>' +
+        '<p style="margin-top:8px;font-size:13px">The access code is no longer valid. Please ask your contact for a new one and update it in Settings.</p>' +
+        '<p style="margin-top:10px"><button onclick="showPage(\'config\')" style="background:var(--yellow);color:#111;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px">Update Access Code →</button></p>'
+      );
+    } else if (isNetworkError(err)) {
+      appendMsg("bot",
+        '<p style="color:var(--red)">⚠ Network blocked — external AI service unreachable.</p>' +
+        '<p style="margin-top:8px;font-size:13px">Open <strong>http://localhost:3000/v3</strong> (not the HTML file directly) so chat uses the local offline demo — no firewall whitelist needed.</p>' +
+        '<p style="margin-top:8px;font-size:13px">Or ask IT to whitelist <code>models.inference.ai.azure.com</code>.</p>'
+      );
+    } else {
+      appendMsg("bot",'<p style="color:var(--red)">⚠ ' + escHtml(err.message) + '</p>');
+    }
+  } finally {
+    chatBusy = false; sendBtn.disabled = false;
+    cm.scrollTop = cm.scrollHeight;
+  }
+}
+
+// ── Users page ────────────────────────────────────────────────────────────
+function renderUsersGrid() {
+  const grid = document.getElementById("usersGrid");
+  grid.innerHTML = Object.values(USERS).map(u => {
+    const s = getActionStats(u.id);
+    const sel = u.id === activeUserId ? " selected" : "";
+    return '<div class="user-card' + sel + '" onclick="selectUserFromCard(\'' + u.id + '\')">' +
+      '<div class="uc-head"><div class="uc-av">' + u.identity.avatar + '</div>' +
+      '<div><div class="uc-name">' + u.identity.name + '</div>' +
+      '<div class="uc-type">' + u.corporateContext.department + '</div>' +
+      '<div class="uc-type" style="margin-top:2px">' + u.permissions.assignmentType + '</div></div></div>' +
+      '<div class="user-card-profile">' + buildProfileDetailsHtml(u) + '</div>' +
+      '<div class="uc-rows">' +
+        '<div class="uc-row"><span>Actions</span><span style="color:' + (s.overdue>0?'var(--red)':'var(--green)') + '">' + s.done + '/' + s.total + ' done' + (s.overdue>0?' · '+s.overdue+' overdue':'') + '</span></div>' +
+      '</div>' +
+      '<div class="uc-actions">' +
+        '<button class="btn-outline btn-sm" onclick="event.stopPropagation();viewUserActions(\'' + u.id + '\')">Actions</button>' +
+        '<button class="btn-primary btn-sm" onclick="event.stopPropagation();simulateUser(\'' + u.id + '\')">Simulate</button>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function viewUserActions(id) {
+  document.getElementById("userSelector").value = id;
+  switchUser(id);
+  showPage("actions");
+}
+
+function selectUserFromCard(id) {
+  document.getElementById("userSelector").value = id;
+  switchUser(id);
+}
+
+function simulateUser(id) {
+  document.getElementById("userSelector").value = id;
+  switchUser(id);
+  showPage("chat");
+  toast("Simulating as: " + USERS[id].identity.name, "info");
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  const chatInput = document.getElementById("chatInput");
+  chatInput.addEventListener("input", () => {
+    chatInput.style.height = "auto";
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + "px";
+  });
+  chatInput.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!chatBusy) send(); }
+  });
+  initChatSidebar();
+  switchUser("u_lta_family");
+  document.getElementById("userSelector").value = "u_lta_family";
+
+  const demoParams = new URLSearchParams(window.location.search);
+  const isDemoUrl = demoParams.get("demo") === "1" || demoParams.get("autoplay") === "1";
+
+  updateChatModeBadge();
+
+  if (!getToken() && !isDemoUrl && !IS_SERVED) {
+    toast("Standalone demo — chat uses built-in policy answers (no access code needed).", "info");
+  } else if (!getToken() && !isDemoUrl && IS_SERVED) {
+    toast("Chat ready — offline policy demo (no access code needed on corporate network).", "info");
+  }
+});
+</script>
+<script src="assets/demo-presentation.js"></script>
+</body>
+</html>

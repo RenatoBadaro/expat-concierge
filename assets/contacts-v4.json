@@ -1,0 +1,196 @@
+{
+  "version": "2026-08-12",
+  "source": "Expat Concierge - Testing answers.xlsx",
+  "vendors": {
+    "vialto": {
+      "id": "vialto",
+      "name": "Vialto",
+      "email": "amanda.a.adamczenko@vialto.com",
+      "accountManager": "Amanda Adamczenko",
+      "website": "https://mymobility.vialto.com/",
+      "portalLabel": "myMobilityHQ",
+      "roles": ["Immigration", "Tax"],
+      "ownerAliases": ["Vialto"]
+    },
+    "k2": {
+      "id": "k2",
+      "name": "K2",
+      "email": "virginia.howard@k2relocate.com",
+      "accountManager": "Virginia Howard",
+      "website": null,
+      "roles": ["Destination Services", "Relocation"],
+      "ownerAliases": ["K2"]
+    },
+    "gm": {
+      "id": "gm",
+      "name": "Global Mobility",
+      "email": "Sejla.Rockwood@AB-inbev.com",
+      "accountManager": "Sejla Rockwood",
+      "website": null,
+      "roles": ["Onboarding", "Payroll", "Escalation"],
+      "ownerAliases": ["GM", "Global Mobility"]
+    },
+    "netexpat": {
+      "id": "netexpat",
+      "name": "Net Expat",
+      "email": null,
+      "accountManager": null,
+      "website": "https://www.netexpat.com/",
+      "roles": ["Intercultural Training", "Partner Support"],
+      "ownerAliases": ["Net Expat", "NetExpat"],
+      "note": "Consultant contact is assigned per case — reach out to Global Mobility if not yet connected."
+    }
+  },
+  "tasks": {
+    "1": {
+      "suggestion": null,
+      "debbieNote": "Expat has a \"Document cabinet\" in the Portal and inside they can find their PDF Offer"
+    },
+    "2": {
+      "suggestion": null,
+      "debbieNote": "Expat has button that confirms offer acceptance - this flows into an e-mail to GM/PBP"
+    },
+    "3": {
+      "suggestion": null,
+      "debbieNote": "Expat is tagged to their GM specialist and the system can show 5 available slots in the Outlook of the GM team, and Expat can click directly on the Portal and Outlook gets booked"
+    },
+    "4": {
+      "suggestion": "Link to DocuSign",
+      "debbieNote": "Ok"
+    },
+    "5": {
+      "suggestion": "Link to myMobilityHQ for scheduling the call with Vialto immigration team",
+      "debbieNote": "Ok + contact details of Immigration team provided by Vialto",
+      "actionLabel": "Schedule on myMobilityHQ",
+      "actionUrl": "https://mymobility.vialto.com/"
+    },
+    "6": {
+      "suggestion": "Link to myMobilityHQ for the document checklist",
+      "debbieNote": "Ok",
+      "actionLabel": "Document checklist",
+      "actionUrl": "https://mymobility.vialto.com/"
+    },
+    "7": {
+      "suggestion": "Link to myMobilityHQ for scheduling the call with Vialto tax team",
+      "debbieNote": "Ok + contact details of Tax team provided by Vialto",
+      "actionLabel": "Schedule tax briefing",
+      "actionUrl": "https://mymobility.vialto.com/"
+    },
+    "8": {
+      "suggestion": "K2 contact email attached or a link to Apro with drafted template for scheduling this call, the template should have the K2 contact person implemented automatically",
+      "debbieNote": "Check with K2 what we can implement - automated Outlook connect, or something else?"
+    },
+    "9": {
+      "suggestion": "K2 contact email attached or a link to Apro for the checklist, eg. Visa, hotel booking, calendar for the 3 or 5 days with K2, etc.",
+      "debbieNote": "K2 to provide PDF document with Look & See agenda/provide K2 contact details"
+    },
+    "10": {
+      "suggestion": "Insert a due date for the visa submission in order to meet the target assignment start date.",
+      "debbieNote": "Ok + link to Vialto My Mobility",
+      "actionLabel": "Open myMobilityHQ",
+      "actionUrl": "https://mymobility.vialto.com/"
+    },
+    "11": {
+      "suggestion": "Add the contact email for NetExpat consultant",
+      "debbieNote": "Ok + website of Net Expat",
+      "actionLabel": "Net Expat website",
+      "actionUrl": "https://www.netexpat.com/"
+    },
+    "12": {
+      "suggestion": "These two tasks can be combined as normally the preferred living area can be confirmed during or right after look & see trip.",
+      "debbieNote": "Ok"
+    },
+    "13": {
+      "suggestion": null,
+      "debbieNote": "Ok"
+    },
+    "14": {
+      "suggestion": "Add the contact email for moving company. Best to create a shipment status tracking sheet or checklist through Apro link which K2 can update the shipment status on real time.",
+      "debbieNote": "K2 to provide live self-service visibility of the shipping process status"
+    },
+    "15": {
+      "suggestion": null,
+      "debbieNote": null
+    },
+    "16": {
+      "suggestion": "Add K2 contact",
+      "debbieNote": "Some guidance would be helpful, and K2 contact to support"
+    },
+    "17": {
+      "suggestion": null,
+      "debbieNote": "Ok - personal, not connected to ABI"
+    },
+    "18": {
+      "suggestion": null,
+      "debbieNote": "We can provide some examples for inspiration e.g. gym membership, etc"
+    },
+    "19": {
+      "suggestion": "Link to the shipment status tracking sheet/checklist for real-time status update",
+      "debbieNote": "OK"
+    },
+    "20": {
+      "suggestion": null,
+      "debbieNote": "Check with K2: how can they provide visibility into the Temp Living options except by e-mail?"
+    },
+    "21": {
+      "suggestion": "Link to the shipment status tracking sheet/checklist for real-time status update",
+      "debbieNote": "OK"
+    },
+    "22": {
+      "suggestion": "Link to myMobilityHQ for downloading the visa",
+      "debbieNote": "OK",
+      "actionLabel": "Download visa",
+      "actionUrl": "https://mymobility.vialto.com/"
+    },
+    "23": {
+      "suggestion": "Insert a due date based on the target assignment start date",
+      "debbieNote": "URL for Egencia"
+    },
+    "24": {
+      "suggestion": null,
+      "debbieNote": null
+    },
+    "25": {
+      "suggestion": "Add a reminder for total temp living days entitled.",
+      "debbieNote": "Ok"
+    },
+    "26": {
+      "suggestion": "Add a reminder for assignee to update the bank account information in WD",
+      "debbieNote": "Ok"
+    },
+    "27": {
+      "suggestion": "Link to Vialto email for post-arrival process. Suggest Vialto to upload all milestone emails to myMobilityHQ so Concierge can create the link to myMobilityHQ.",
+      "debbieNote": "Ok",
+      "actionLabel": "Post-arrival guidance",
+      "actionUrl": "https://mymobility.vialto.com/"
+    },
+    "28": {
+      "suggestion": null,
+      "debbieNote": null
+    },
+    "29": {
+      "suggestion": "Suggest to implement a function for triggering an email reminder to Mobility Specialist once assignees clicks Complete on this task because in some countries, reporting address change is a legal/immigration requirement (for example, foreigners in China needs to report address change within 10 days to the immigration authority).",
+      "debbieNote": "Ok"
+    },
+    "30": {
+      "suggestion": "Link to the shipment status tracking sheet/checklist for real-time status update",
+      "debbieNote": "Ok"
+    },
+    "31": {
+      "suggestion": "Add K2 contact",
+      "debbieNote": "Ok"
+    },
+    "32": {
+      "suggestion": "Add a reminder to the task. Normally Mobility Specialist should trigger Cigna enrollment after visa is granted so if assignee has not received Cigna Welcome Email after final arrival at Host, they should reach out to the Mobility team.",
+      "debbieNote": "Link to Cigna Envoy"
+    },
+    "33": {
+      "suggestion": "Suggest to add a link to Mobility specialist's outlook calendar for scheduling this call",
+      "debbieNote": "Book the slot with options connected to GM team's Outlook"
+    },
+    "34": {
+      "suggestion": null,
+      "debbieNote": "Show who is Host PBP and same option with Outlook invite slots"
+    }
+  }
+}

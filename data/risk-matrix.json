@@ -1,0 +1,247 @@
+{
+  "version": "1.0",
+  "updated": "2026-08",
+  "purpose": "Score incomplete action-log tasks by how much they block relocation or assignment completion.",
+  "sourceFile": "V3_Assignment_Risk_Matrix_v1.0.xlsx",
+  "tiers": {
+    "blocker": {
+      "label": "Blocker",
+      "weight": 5,
+      "desc": "Hard gate — blocks move or assignment completion until resolved."
+    },
+    "critical": {
+      "label": "Critical",
+      "weight": 4,
+      "desc": "Strong dependency on the critical path (visa, payroll, healthcare)."
+    },
+    "high": {
+      "label": "High",
+      "weight": 3,
+      "desc": "Important for a successful move or settle-in."
+    },
+    "medium": {
+      "label": "Medium",
+      "weight": 2,
+      "desc": "Supporting task — delays cause friction but rarely block alone."
+    },
+    "low": {
+      "label": "Low",
+      "weight": 1,
+      "desc": "Optional / enrichment — minimal impact on assignment success."
+    }
+  },
+  "gates": {
+    "start": "Pre-move gate — must complete before package proceeds",
+    "move": "Relocation gate — blocks physical move to host country",
+    "settle": "Settle-in gate — blocks stable life in host country",
+    "complete": "Completion gate — blocks formal assignment closure",
+    "support": "Support — improves experience, rarely blocks alone"
+  },
+  "statusMultipliers": {
+    "overdue": 2.0,
+    "dueSoon": 1.35,
+    "pending": 1.0
+  },
+  "levelThresholds": [
+    {
+      "level": "low",
+      "label": "Low",
+      "maxScore": 18
+    },
+    {
+      "level": "medium",
+      "label": "Medium",
+      "maxScore": 40
+    },
+    {
+      "level": "high",
+      "label": "High",
+      "maxScore": 65
+    },
+    {
+      "level": "critical",
+      "label": "Critical",
+      "maxScore": 99999
+    }
+  ],
+  "escalationRules": [
+    "Any Blocker-tier task overdue → overall risk = Critical (regardless of score).",
+    "Two or more Critical-tier tasks overdue → overall risk = Critical.",
+    "Risk score = Σ (tier weight × status multiplier) for all incomplete tasks in the user's action log.",
+    "Completed tasks contribute zero. Conditional tasks only apply when profile flags match.",
+    "Higher weight on gates: move, settle, and complete — these block the end of the assignment journey."
+  ],
+  "tasks": {
+    "1": {
+      "tier": "high",
+      "gate": "start",
+      "note": "Offer discussion — precedes acceptance"
+    },
+    "2": {
+      "tier": "blocker",
+      "gate": "start",
+      "note": "Offer acceptance — blocks LOA and package"
+    },
+    "3": {
+      "tier": "medium",
+      "gate": "start",
+      "note": "GM onboarding — orientation, not a hard gate"
+    },
+    "4": {
+      "tier": "blocker",
+      "gate": "start",
+      "note": "Signed LOA — legal basis for assignment"
+    },
+    "5": {
+      "tier": "critical",
+      "gate": "start",
+      "note": "Immigration briefing — visa path begins"
+    },
+    "6": {
+      "tier": "critical",
+      "gate": "start",
+      "note": "Immigration documents — required for visa"
+    },
+    "7": {
+      "tier": "high",
+      "gate": "start",
+      "note": "Tax briefing (if applicable)"
+    },
+    "8": {
+      "tier": "medium",
+      "gate": "support",
+      "note": "K2 needs briefing — housing/school planning"
+    },
+    "9": {
+      "tier": "medium",
+      "gate": "support",
+      "note": "Look & See planning"
+    },
+    "10": {
+      "tier": "blocker",
+      "gate": "move",
+      "note": "Visa application submitted — blocks travel"
+    },
+    "11": {
+      "tier": "low",
+      "gate": "support",
+      "note": "Intercultural training (if applicable)"
+    },
+    "12": {
+      "tier": "medium",
+      "gate": "support",
+      "note": "Look & See trip attendance"
+    },
+    "13": {
+      "tier": "medium",
+      "gate": "settle",
+      "note": "Preferred area — feeds housing search"
+    },
+    "14": {
+      "tier": "high",
+      "gate": "move",
+      "note": "HHG survey — shipment timeline"
+    },
+    "15": {
+      "tier": "high",
+      "gate": "settle",
+      "note": "School application (if children)"
+    },
+    "16": {
+      "tier": "medium",
+      "gate": "support",
+      "note": "Pet shipment (if applicable)"
+    },
+    "17": {
+      "tier": "medium",
+      "gate": "settle",
+      "note": "Health check before move"
+    },
+    "18": {
+      "tier": "medium",
+      "gate": "move",
+      "note": "Home-country cancellations"
+    },
+    "19": {
+      "tier": "high",
+      "gate": "move",
+      "note": "HHG packing — physical move prep"
+    },
+    "20": {
+      "tier": "high",
+      "gate": "settle",
+      "note": "Temporary living (if applicable)"
+    },
+    "21": {
+      "tier": "high",
+      "gate": "move",
+      "note": "Customs documents — HHG clearance"
+    },
+    "22": {
+      "tier": "blocker",
+      "gate": "move",
+      "note": "Immigration confirmation — required before move"
+    },
+    "23": {
+      "tier": "blocker",
+      "gate": "move",
+      "note": "Book ticket after visa — cannot travel without"
+    },
+    "24": {
+      "tier": "blocker",
+      "gate": "move",
+      "note": "Relocate to host — core relocation gate"
+    },
+    "25": {
+      "tier": "high",
+      "gate": "settle",
+      "note": "Temporary housing check-in (if applicable)"
+    },
+    "26": {
+      "tier": "critical",
+      "gate": "settle",
+      "note": "Bank account — payroll and daily life"
+    },
+    "27": {
+      "tier": "critical",
+      "gate": "settle",
+      "note": "Post-arrival immigration compliance"
+    },
+    "28": {
+      "tier": "medium",
+      "gate": "settle",
+      "note": "K2 post-arrival processes"
+    },
+    "29": {
+      "tier": "blocker",
+      "gate": "settle",
+      "note": "Permanent housing — blocks stable settle-in"
+    },
+    "30": {
+      "tier": "medium",
+      "gate": "settle",
+      "note": "HHG delivery at host"
+    },
+    "31": {
+      "tier": "low",
+      "gate": "support",
+      "note": "Language training (if applicable)"
+    },
+    "32": {
+      "tier": "critical",
+      "gate": "settle",
+      "note": "Cigna registration — healthcare coverage"
+    },
+    "33": {
+      "tier": "critical",
+      "gate": "complete",
+      "note": "First host payroll review — compensation live"
+    },
+    "34": {
+      "tier": "blocker",
+      "gate": "complete",
+      "note": "Local onboarding — assignment operationally complete"
+    }
+  },
+  "businessOverridesApplied": 0
+}
