@@ -52,7 +52,7 @@ function checkQuestionScope(question, userContext) {
   const questionLower = question.toLowerCase();
 
   const unauthorized = ALL_ASSIGNMENT_TYPES.filter(
-    (t) => t !== userType && questionLower.includes(t)
+    (t) => t !== userType && new RegExp("\\b" + t + "\\b").test(questionLower)
   );
 
   if (unauthorized.length > 0) {

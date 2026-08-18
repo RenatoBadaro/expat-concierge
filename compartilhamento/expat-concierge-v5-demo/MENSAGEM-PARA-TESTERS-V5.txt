@@ -1,0 +1,31 @@
+Assunto: Expat Concierge V5 — demo offline para avaliação
+
+Olá,
+
+Estamos compartilhando a demo da Expat Concierge V5 para avaliação da experiência do usuário.
+
+Como testar:
+
+1. Extraia o arquivo ZIP completo.
+2. Abra o arquivo expat-concierge-demo-v5.html no Safari ou Chrome.
+3. Explore as áreas Chat, Actions, Risk Matrix, Users e About.
+4. Teste as três perguntas rápidas disponíveis no chat.
+5. No Action Log, teste os filtros por status, fase e responsável.
+6. Na Risk Matrix, revise os níveis de risco e os fatores que contribuem para o score.
+
+A demo funciona offline para avaliação da interface, do Action Log, da Risk Matrix, dos links de apoio e das respostas simuladas do chat. Não é necessário configurar chave ou token para esse teste.
+
+O Copilot real, o login Microsoft e as respostas online dependem de um servidor configurado e não fazem parte deste pacote offline. Os links para portais externos também exigem internet quando forem abertos.
+
+Importante: mantenha o arquivo HTML junto da pasta assets. Não altere ou remova essa pasta, pois ela contém os dados da demo, incluindo as 34 actions, a matriz de risco, contatos e scripts locais.
+
+Por favor, registre comentários sobre:
+
+- clareza da navegação;
+- utilidade das actions;
+- entendimento da matriz de risco;
+- qualidade visual;
+- facilidade para encontrar contatos e links;
+- dúvidas ou melhorias desejadas.
+
+Obrigado!

@@ -1,23 +1,19 @@
 /**
- * V2 Ask Route — Orchestrator
+ * V3 Ask Route — Orchestrator (evolves V2; V2 route unchanged)
  *
- * Flow:
- *   request → getUserContext → checkPolicyAccess → scoped retrieval
- *   → decisionEngine → confidenceEngine → buildSystemPromptV2
- *   → LLM (stream or JSON) → structured response
+ * Same pipeline as V2 but uses buildSystemPromptV3 (policy citations,
+ * assertiveness, escalation prohibition, host-country flags).
  */
 
 const express  = require("express");
-const https    = require("https");
 const OpenAI   = require("openai");
 
 const { getUserContext }                                   = require("../services/userContextServiceV2");
 const { checkPolicyAccess, filterChunksByPolicy,
-        buildRetrievalOptions, getEscalationTarget,
-        checkQuestionScope }                               = require("../services/policyAccessControlV2");
+        buildRetrievalOptions, checkQuestionScope }        = require("../services/policyAccessControlV2");
 const { analyze }                                          = require("../services/decisionEngineV2");
 const { score }                                            = require("../services/confidenceEngineV2");
-const { buildSystemPromptV2 }                              = require("../prompts/systemV2");
+const { buildSystemPromptV3 }                              = require("../prompts/systemV3");
 const { retrieveRelevantChunks }                           = require("../services/retrieval");
 const { getPolicies }                                      = require("../services/policyStore");
 const { route: routeToAgent }                              = require("../agents/v2/policyAgentRouterV2");
@@ -26,13 +22,12 @@ const { audit }                                            = require("../service
 
 const router = express.Router();
 
-// ── Session store (V2 — keyed by userId + sessionId) ────────────────────────
 const sessions    = new Map();
 const SESSION_TTL = 2 * 60 * 60 * 1000;
 const MAX_HISTORY = 20;
 
 function sessionKey(userId, sessionId) {
-  return `${userId || "anon"}::${sessionId || "default"}`;
+  return `v3::${userId || "anon"}::${sessionId || "default"}`;
 }
 
 function getSession(userId, sessionId) {
@@ -51,8 +46,7 @@ setInterval(() => {
   }
 }, 30 * 60 * 1000);
 
-// ── LLM client ──────────────────────────────────────────────────────────────
-const { createLLMClient } = require("../services/llmClient");
+const { createLLMClient, describeLLMConfig, isGitHubRetirementError, GITHUB_MODELS_RETIRED_MSG } = require("../services/llmClient");
 
 function buildMessages(systemPrompt, question, policyContext, history) {
   const messages = [{ role: "system", content: systemPrompt }];
@@ -65,7 +59,10 @@ function buildMessages(systemPrompt, question, policyContext, history) {
   return messages;
 }
 
-// ── POST /askV2 ──────────────────────────────────────────────────────────────
+router.get("/health", (_req, res) => {
+  res.json({ version: "3.0", llm: describeLLMConfig() });
+});
+
 router.post("/", async (req, res) => {
   const question  = req.body?.question?.trim();
   const userId    = req.body?.userId    || null;
@@ -74,22 +71,14 @@ router.post("/", async (req, res) => {
 
   if (!question) return res.status(400).json({ error: "question is required." });
 
-  // ── 1. Get user context ────────────────────────────────────────────────────
   const userContext = getUserContext(userId);
   if (!userContext) {
-    return res.status(403).json({
-      error: "User not found or not authorized.",
-      userId,
-    });
+    return res.status(403).json({ error: "User not found or not authorized.", userId });
   }
 
-  // ── 2. Policy access check ────────────────────────────────────────────────
   const access = checkPolicyAccess(userContext);
-  if (!access.allowed) {
-    return res.status(403).json({ error: access.reason });
-  }
+  if (!access.allowed) return res.status(403).json({ error: access.reason });
 
-  // ── 2b. Question scope guard — hard block cross-assignment questions ───────
   const scopeCheck = checkQuestionScope(question, userContext);
   if (!scopeCheck.inScope) {
     return res.status(403).json({
@@ -99,7 +88,6 @@ router.post("/", async (req, res) => {
     });
   }
 
-  // ── 3. Scoped retrieval ───────────────────────────────────────────────────
   const allPolicies = getPolicies();
   const retrievalOpts = buildRetrievalOptions(userContext);
   let chunks = [];
@@ -110,38 +98,30 @@ router.post("/", async (req, res) => {
       const raw   = await retrieveRelevantChunks(query, 12);
       chunks      = filterChunksByPolicy(raw, userContext);
     } catch (e) {
-      console.warn("[V2] Retrieval warning:", e.message);
+      console.warn("[V3] Retrieval warning:", e.message);
     }
   }
 
-  // ── 4. Route to Policy Specialist Agent ──────────────────────────────────
   let specialistOutput = routeToAgent(question, chunks, userContext);
 
-  // Validate specialist output — fall back to generic if invalid
   const validation = validateSpecialistOutput(specialistOutput, userContext);
   let fallbackUsed = false;
   if (!validation.valid) {
-    console.warn("[V2] Specialist output invalid:", validation.reason, "— using generic fallback");
+    console.warn("[V3] Specialist output invalid:", validation.reason, "— using generic fallback");
     const genericAgent = require("../agents/v2/genericPolicyAgentV2");
     specialistOutput   = genericAgent.run(question, chunks, userContext);
     fallbackUsed       = true;
   }
 
-  // ── 5. Decision engine (now specialist-aware) ─────────────────────────────
   const decision = analyze(question, chunks, userContext, specialistOutput);
-
-  // ── 6. Confidence engine (now specialist-aware) ───────────────────────────
   const { confidence, riskLevel, signals } = score(chunks, decision, userContext, specialistOutput);
 
-  // ── 7. Build personalized system prompt ──────────────────────────────────
-  const systemPrompt = buildSystemPromptV2(userContext);
+  const systemPrompt = buildSystemPromptV3(userContext);
 
-  // ── 8. Build policy context block ────────────────────────────────────────
-  let policyContext   = "";
-
+  let policyContext = "";
   if (allPolicies.length === 0) {
     policyContext =
-      "[CONTEXT: No policies have been indexed yet. Answer based on general market practice and recommend confirming with Global Mobility.]";
+      "[CONTEXT: No policies indexed. Use embedded V3 policy knowledge from skills. Do NOT default to vague market practice.]";
   } else if (chunks.length > 0) {
     const header = `[Active assignment type: ${retrievalOpts.assignmentType}]\n[Authorized policies: ${retrievalOpts.allowedPolicies.join(", ")}]\n`;
     policyContext =
@@ -152,18 +132,15 @@ router.post("/", async (req, res) => {
   } else {
     policyContext =
       `[Assignment type: ${retrievalOpts.assignmentType}. ` +
-      "No specific policy content found for this question. " +
-      "Answer based on general practice, clearly noting it is market practice and not internal policy.]";
+      "No retrieved chunks — use embedded policy knowledge from system prompt and skills.]";
   }
 
-  // Append specialist agent + engine context
   policyContext += "\n\n" + buildChatContext(specialistOutput, decision, confidence, riskLevel);
 
-  // ── 9. Session history ────────────────────────────────────────────────────
   const session = getSession(userId, sessionId);
 
-  // ── 10. Metadata payload + audit ─────────────────────────────────────────
   const meta = {
+    version:            "3.0",
     userId,
     userName:           userContext.identity.name,
     assignmentType:     userContext.permissions.assignmentType,
@@ -200,7 +177,6 @@ router.post("/", async (req, res) => {
     warnings:            signals.filter((s) => s.startsWith("Risk:")),
   });
 
-  // ── 10. LLM call ──────────────────────────────────────────────────────────
   let llmClient, llmModel;
   try {
     const c = createLLMClient();
@@ -221,7 +197,7 @@ router.post("/", async (req, res) => {
     try {
       const stream = await llmClient.chat.completions.create({
         model:       llmModel,
-        temperature: 0.4,
+        temperature: 0.35,
         max_tokens:  4096,
         stream:      true,
         messages,
@@ -242,8 +218,9 @@ router.post("/", async (req, res) => {
 
       res.write(`data: ${JSON.stringify({ done: true, meta })}\n\n`);
     } catch (err) {
-      console.error("[V2] Stream error:", err.message);
-      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      console.error("[V3] Stream error:", err.message);
+      const detail = isGitHubRetirementError(err) ? GITHUB_MODELS_RETIRED_MSG : err.message;
+      res.write(`data: ${JSON.stringify({ error: detail })}\n\n`);
     } finally {
       res.end();
     }
@@ -251,7 +228,7 @@ router.post("/", async (req, res) => {
     try {
       const response = await llmClient.chat.completions.create({
         model:       llmModel,
-        temperature: 0.4,
+        temperature: 0.35,
         max_tokens:  4096,
         messages,
       });
@@ -264,8 +241,9 @@ router.post("/", async (req, res) => {
 
       res.json({ answer, ...meta });
     } catch (err) {
-      console.error("[V2] LLM error:", err.message);
-      res.status(500).json({ error: "LLM call failed.", detail: err.message });
+      console.error("[V3] LLM error:", err.message);
+      const detail = isGitHubRetirementError(err) ? GITHUB_MODELS_RETIRED_MSG : err.message;
+      res.status(500).json({ error: "LLM call failed.", detail });
     }
   }
 });
